@@ -13,7 +13,7 @@ A mobile-friendly web app that lets you sign in with Google, link your spreadshe
 
 ## Live Demo
 
-Once deployed, your app will be available at: `https://[your-username].github.io/[repo-name]/`
+Once deployed, your app will be available at: `https://sraja7272.github.io/Dua-Swiper/`
 
 ## Prerequisites
 
