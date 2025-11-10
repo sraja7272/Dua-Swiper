@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react'
-import { parseSpreadsheetUrl } from '../utils/parseSpreadsheetUrl'
 import { fetchSheetData } from '../utils/sheetsApi'
+import SpreadsheetPicker from './SpreadsheetPicker'
 
 export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAutoLoad = false }) {
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isAutoLoading, setIsAutoLoading] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
-  const [error, setError] = useState('')
 
   // Automatically load last spreadsheet on mount if it exists
   useEffect(() => {
@@ -22,8 +19,6 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         return
       }
 
-      setError('')
-      setInput(lastId)
       setIsAutoLoading(true)
       setShowAnimation(false)
 
@@ -46,8 +41,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         await new Promise(resolve => setTimeout(resolve, 500))
         
         onDataLoaded?.(duas)
-      } catch (err) {
-        setError(err.message || 'Failed to load spreadsheet')
+      } catch {
         // Clear the last ID if it fails to load
         localStorage.removeItem('lastSpreadsheetId')
         setIsAutoLoading(false)
@@ -59,37 +53,18 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     loadLastSpreadsheet()
   }, [accessToken, onDataLoaded, disableAutoLoad])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-
-    if (!input.trim()) {
-      setError('Please enter a spreadsheet URL or ID')
-      return
-    }
-
-    const spreadsheetId = parseSpreadsheetUrl(input)
-
-    if (!spreadsheetId) {
-      setError(
-        'Invalid spreadsheet URL or ID. Please check and try again.'
-      )
-      return
-    }
-
-    setIsLoading(true)
-
+  const handleSpreadsheetSelected = async (spreadsheetId) => {
     try {
       const duas = await fetchSheetData(spreadsheetId, accessToken)
       
       // Save spreadsheet ID to localStorage for convenience
       localStorage.setItem('lastSpreadsheetId', spreadsheetId)
       
-          onDataLoaded?.(duas)
+      onDataLoaded?.(duas)
     } catch (err) {
-      setError(err.message || 'Failed to load spreadsheet')
-    } finally {
-      setIsLoading(false)
+      // Error will be handled by the picker component if needed
+      console.error('Error loading spreadsheet:', err)
+      throw err
     }
   }
 
@@ -139,82 +114,12 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div className="card">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Link Your Spreadsheet
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Enter your Google Sheets URL or ID. Your spreadsheet should have
-          columns named "Name" and "Duas".
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="https://docs.google.com/spreadsheets/d/..."
-              className="input-field"
-              disabled={isLoading}
-            />
-          </div>
-
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex-1"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="animate-spin h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Loading...
-                </span>
-              ) : (
-                'Load Spreadsheet'
-              )}
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-medium text-blue-900 mb-2">Setup Instructions:</h3>
-          <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-            <li>Create a Google Spreadsheet with columns "Name" and "Duas"</li>
-            <li>Make sure you have access to the spreadsheet (own it or it's shared with you)</li>
-            <li>Copy the spreadsheet URL from your browser</li>
-            <li>Paste it above and click "Load Spreadsheet"</li>
-          </ol>
-        </div>
-      </div>
-    </div>
+    <>
+      <SpreadsheetPicker
+        accessToken={accessToken}
+        onSpreadsheetSelected={handleSpreadsheetSelected}
+      />
+    </>
   )
 }
 
