@@ -190,9 +190,9 @@ Your Google Spreadsheet should look like this:
 
 | Name | Duas |
 |------|------|
-| Morning Dua | اللهم إني أصبحت أشهدك وأشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا إله إلا أنت وحدك لا شريك لك وأن محمداً عبدك ورسولك |
-| Evening Dua | اللهم إني أمسيت أشهدك وأشهد حملة عرشك وملائكتك وجميع خلقك أنك أنت الله لا إله إلا أنت وحدك لا شريك لك وأن محمداً عبدك ورسولك |
-| Before Eating | بسم الله |
+| Shaheer | Grant me success in my exam and help me remember what I have studied |
+| Shaheer | Grant me a good job that suits my skills |
+| Shaheer | Grant me good health and protect me from illness |
 
 **Requirements:**
 - First row must be headers
@@ -249,7 +249,54 @@ Your Google Spreadsheet should look like this:
 - **Data Privacy:** Your spreadsheet data never leaves your browser
 - **Permissions:** App only requests read-only access to spreadsheets
 
+## Quick Start Guide
+
+### 1. Set Up Google Cloud
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Enable **Google Sheets API**
+4. Create **OAuth 2.0 Client ID** (Web application)
+5. Add authorized JavaScript origins:
+   - `http://localhost:5173` (for local development)
+   - `https://[your-username].github.io` (for production - add after deployment)
+6. Copy your Client ID
+
+### 2. Configure Environment
+
+```bash
+# Create .env file
+echo "VITE_GOOGLE_CLIENT_ID=your_client_id_here" > .env
+
+# Replace 'your_client_id_here' with your actual Client ID
+```
+
+### 3. Install and Run
+
+```bash
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Start development server
+npm run dev
+```
+
+Open `http://localhost:5173` in your browser.
+
+### 4. Test Locally
+
+1. Sign in with Google
+2. Create a test spreadsheet with "Name" and "Duas" columns
+3. Copy the spreadsheet URL
+4. Load it in the app
+5. Test the swipe functionality
+
 ## Troubleshooting
+
+### Build Issues
+
+- Make sure all dependencies are installed: `npm install --legacy-peer-deps`
+- Clear cache: `rm -rf node_modules package-lock.json && npm install --legacy-peer-deps`
 
 ### "Setup Required" Error
 
@@ -261,11 +308,12 @@ Your Google Spreadsheet should look like this:
 - Check that your Client ID is correct
 - Verify authorized JavaScript origins in Google Cloud Console
 - Make sure you're using the correct Google account
+- Restart dev server after changing `.env`
 
 ### Spreadsheet Not Loading
 
 - Verify you have access to the spreadsheet
-- Check that columns are named "Name" and "Duas"
+- Check that columns are named "Name" and "Duas" (or "author" and "quote")
 - Try making the spreadsheet public ("Anyone with the link can view")
 - Check browser console for detailed error messages
 
