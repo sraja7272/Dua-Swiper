@@ -45,7 +45,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         // Wait a bit for animation to be visible
         await new Promise(resolve => setTimeout(resolve, 500))
         
-        onDataLoaded?.(duas, lastId)
+        onDataLoaded?.(duas)
       } catch (err) {
         setError(err.message || 'Failed to load spreadsheet')
         // Clear the last ID if it fails to load
@@ -85,7 +85,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
       // Save spreadsheet ID to localStorage for convenience
       localStorage.setItem('lastSpreadsheetId', spreadsheetId)
       
-      onDataLoaded?.(duas, spreadsheetId)
+          onDataLoaded?.(duas)
     } catch (err) {
       setError(err.message || 'Failed to load spreadsheet')
     } finally {

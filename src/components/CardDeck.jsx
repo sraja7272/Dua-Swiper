@@ -9,12 +9,23 @@ export default function CardDeck({ duas: initialDuas }) {
   const [currentIndex, setCurrentIndex] = useState(initialDuas.length - 1)
   const currentIndexRef = useRef(currentIndex)
 
-  // Reset to original duas when prop changes
+  // Shuffle array function (Fisher-Yates algorithm)
+  const shuffleArray = (array) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Reset to original duas when prop changes (randomized)
   useEffect(() => {
-    setDuas(initialDuas)
+    const randomizedDuas = shuffleArray(initialDuas)
+    setDuas(randomizedDuas)
     setSwipedCards([])
-    setCurrentIndex(initialDuas.length - 1)
-    currentIndexRef.current = initialDuas.length - 1
+    setCurrentIndex(randomizedDuas.length - 1)
+    currentIndexRef.current = randomizedDuas.length - 1
   }, [initialDuas])
 
   const childRefs = useMemo(
@@ -97,11 +108,12 @@ export default function CardDeck({ duas: initialDuas }) {
   }
 
   const reset = () => {
-    // Reset to original duas
-    setDuas(initialDuas)
+    // Reset to original duas (randomized)
+    const randomizedDuas = shuffleArray(initialDuas)
+    setDuas(randomizedDuas)
     setSwipedCards([])
-    setCurrentIndex(initialDuas.length - 1)
-    currentIndexRef.current = initialDuas.length - 1
+    setCurrentIndex(randomizedDuas.length - 1)
+    currentIndexRef.current = randomizedDuas.length - 1
   }
 
   // Show "No Duas Loaded" only if initial duas is empty (not if all duas are swiped)
