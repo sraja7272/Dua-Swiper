@@ -1,13 +1,11 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react'
-import TinderCard from 'react-tinder-card'
+import React, { useState, useEffect } from 'react'
 import QuoteCard from './QuoteCard'
 
 export default function CardDeck({ duas: initialDuas }) {
-  // State to manage the duas array - remove cards as they're swiped
+  // State to manage the duas array - remove cards as they're navigated
   const [duas, setDuas] = useState(initialDuas)
-  const [swipedCards, setSwipedCards] = useState([]) // Track swiped cards for restoration
-  const [currentIndex, setCurrentIndex] = useState(initialDuas.length - 1)
-  const currentIndexRef = useRef(currentIndex)
+  const [swipedCards, setSwipedCards] = useState([]) // Track removed cards for restoration
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   // Shuffle array function (Fisher-Yates algorithm)
   const shuffleArray = (array) => {
@@ -24,87 +22,50 @@ export default function CardDeck({ duas: initialDuas }) {
     const randomizedDuas = shuffleArray(initialDuas)
     setDuas(randomizedDuas)
     setSwipedCards([])
-    setCurrentIndex(randomizedDuas.length - 1)
-    currentIndexRef.current = randomizedDuas.length - 1
+    setCurrentIndex(0)
   }, [initialDuas])
 
-  const childRefs = useMemo(
-    () =>
-      Array(duas.length)
-        .fill(0)
-        .map(() => React.createRef()),
-    [duas.length]
-  )
-
-  // Sync ref with state
-  useEffect(() => {
-    currentIndexRef.current = currentIndex
-  }, [currentIndex])
-
-  const updateCurrentIndex = (val) => {
-    setCurrentIndex(val)
-    currentIndexRef.current = val
-  }
-
-  // canGoBack: true if we've swiped at least one card (not on first card)
-  // canSwipe: true if there are cards left to swipe
+  // canGoBack: true if we've navigated past at least one card
+  // canSwipe: true if there are cards left to navigate
   const canGoBack = swipedCards.length > 0
-  const canSwipe = duas.length > 0 && currentIndex >= 0 && currentIndex < duas.length
+  const canSwipe = duas.length > 0 && currentIndex < duas.length
 
-  const swiped = (direction, index) => {
-    const swipedCard = duas[index]
+  const goNext = () => {
+    if (!canSwipe || currentIndex >= duas.length) {
+      return
+    }
+
+    const currentCard = duas[currentIndex]
     
-    // Remove the card from the array
-    const newDuas = duas.filter((_, i) => i !== index)
+    // Remove the current card from the array
+    const newDuas = duas.filter((_, i) => i !== currentIndex)
     setDuas(newDuas)
     
     // Add to swiped cards for restoration
-    setSwipedCards(prev => [...prev, { card: swipedCard, index, direction }])
+    setSwipedCards(prev => [...prev, { card: currentCard, index: currentIndex }])
     
-    // Update current index - if we removed the last card, go to the new last card
-    const newIndex = newDuas.length > 0 ? Math.min(index, newDuas.length - 1) : -1
-    updateCurrentIndex(newIndex)
-  }
-
-  const outOfFrame = () => {
-    // Card has left the screen - this is handled by swiped callback
-  }
-
-  const swipe = async (dir) => {
-    if (!canSwipe || currentIndex < 0 || currentIndex >= duas.length) {
-      return
-    }
-
-    const cardRef = childRefs[currentIndex]?.current
-    
-    if (!cardRef || typeof cardRef.swipe !== 'function') {
-      return
-    }
-
-    try {
-      await cardRef.swipe(dir)
-      // The onSwipe callback will be called automatically by the library
-    } catch (error) {
-      console.error('Error swiping card:', error)
-    }
+    // Stay at the same index (which will now show the next card)
+    // If we removed the last card, stay at the last index
+    const newIndex = newDuas.length > 0 ? Math.min(currentIndex, newDuas.length - 1) : 0
+    setCurrentIndex(newIndex)
   }
 
   const goBack = () => {
     if (!canGoBack || swipedCards.length === 0) return
     
-    // Get the last swiped card
-    const lastSwiped = swipedCards[swipedCards.length - 1]
+    // Get the last removed card
+    const lastRemoved = swipedCards[swipedCards.length - 1]
     
-    // Restore the card to the end of the array (it will be the last card shown)
-    const newDuas = [...duas, lastSwiped.card]
+    // Restore the card at its original position
+    const newDuas = [...duas]
+    newDuas.splice(lastRemoved.index, 0, lastRemoved.card)
     setDuas(newDuas)
     
     // Remove from swiped cards
     setSwipedCards(prev => prev.slice(0, -1))
     
-    // Update current index to the restored card (last card in array)
-    const restoredIndex = newDuas.length - 1
-    updateCurrentIndex(restoredIndex)
+    // Update current index to the restored card
+    setCurrentIndex(lastRemoved.index)
   }
 
   const reset = () => {
@@ -112,8 +73,7 @@ export default function CardDeck({ duas: initialDuas }) {
     const randomizedDuas = shuffleArray(initialDuas)
     setDuas(randomizedDuas)
     setSwipedCards([])
-    setCurrentIndex(randomizedDuas.length - 1)
-    currentIndexRef.current = randomizedDuas.length - 1
+    setCurrentIndex(0)
   }
 
   // Show "No Duas Loaded" only if initial duas is empty (not if all duas are swiped)
@@ -154,7 +114,7 @@ export default function CardDeck({ duas: initialDuas }) {
         <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-40">
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md">
             <p className="text-xs font-medium text-gray-600">
-              {duas.length > 0 ? (initialDuas.length - duas.length + 1) : initialDuas.length} / {initialDuas.length}
+              {duas.length > 0 ? (initialDuas.length - duas.length + currentIndex + 1) : initialDuas.length} / {initialDuas.length}
             </p>
           </div>
         </div>
@@ -163,18 +123,11 @@ export default function CardDeck({ duas: initialDuas }) {
       {/* Card container */}
       <div className="relative w-full max-w-md flex-1 flex items-center justify-center px-4">
         <div className="relative w-full h-full" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '300px' }}>
-        {duas.map((dua, index) => (
-          <TinderCard
-            ref={childRefs[index]}
-            key={dua.id}
-            onSwipe={(dir) => swiped(dir, index)}
-            onCardLeftScreen={() => outOfFrame(index)}
-            preventSwipe={['up', 'down']}
-            className="absolute w-full h-full"
-          >
-            <QuoteCard duas={dua.duas} name={dua.name} />
-          </TinderCard>
-        ))}
+          {duas.length > 0 && currentIndex < duas.length && (
+            <div className="absolute w-full h-full">
+              <QuoteCard duas={duas[currentIndex].duas} name={duas[currentIndex].name} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -203,7 +156,7 @@ export default function CardDeck({ duas: initialDuas }) {
           </button>
 
           <button
-            onClick={() => swipe('right')}
+            onClick={goNext}
             disabled={!canSwipe}
             className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:shadow-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center border-2 border-gray-200 touch-manipulation"
             title="Next"
