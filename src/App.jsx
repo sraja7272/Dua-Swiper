@@ -115,7 +115,7 @@ function App() {
               <h3 className="font-semibold mb-2">To set up:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm">
                 <li>Create a Google Cloud project</li>
-                <li>Enable Google Sheets API</li>
+                <li>Enable Google Sheets API and Google Picker API</li>
                 <li>Create OAuth 2.0 credentials (Web application)</li>
                 <li>Add authorized JavaScript origins</li>
                 <li>
