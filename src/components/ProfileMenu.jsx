@@ -54,7 +54,7 @@ export default function ProfileMenu({ user, onSignOut, onChangeSpreadsheet }) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-12 right-0 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+        <div className="absolute top-12 right-0 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-[100]">
           {/* Account Name */}
           <div className="px-4 py-3 border-b border-gray-200">
             <p className="font-semibold text-gray-900 text-sm truncate">
