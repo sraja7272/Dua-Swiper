@@ -110,7 +110,7 @@ function App() {
                 <li>Create OAuth 2.0 credentials (Web application)</li>
                 <li>Add authorized JavaScript origins</li>
                 <li>
-                  Create a <code className="bg-gray-200 px-2 py-1 rounded">.env.local</code> file
+                  Create a <code className="bg-gray-200 px-2 py-1 rounded">.env</code> file
                 </li>
                 <li>
                   Add: <code className="bg-gray-200 px-2 py-1 rounded">VITE_GOOGLE_CLIENT_ID=your_client_id</code>

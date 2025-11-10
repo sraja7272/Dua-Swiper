@@ -36,8 +36,8 @@ Before you can use the app, complete these steps:
 ```bash
 cd [repo-name]
 
-# Create .env.local file
-echo "VITE_GOOGLE_CLIENT_ID=your_client_id_here" > .env.local
+# Create .env file
+echo "VITE_GOOGLE_CLIENT_ID=your_client_id_here" > .env
 
 # Replace 'your_client_id_here' with your actual Client ID
 ```
@@ -106,9 +106,9 @@ Make sure:
 - Clear cache: `rm -rf node_modules package-lock.json && npm install --legacy-peer-deps`
 
 ### Authentication Issues
-- Verify `.env.local` has correct Client ID
+- Verify `.env` has correct Client ID
 - Check authorized origins in Google Cloud Console
-- Restart dev server after changing `.env.local`
+- Restart dev server after changing `.env`
 
 ### Spreadsheet Loading Issues
 - Check spreadsheet permissions

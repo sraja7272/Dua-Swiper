@@ -59,7 +59,7 @@ Before running the app, you need to set up Google OAuth credentials:
 
 ### 4. Configure Environment Variables
 
-Create a `.env.local` file in the project root:
+Create a `.env` file in the project root:
 
 ```bash
 VITE_GOOGLE_CLIENT_ID=your_client_id_here
@@ -85,8 +85,8 @@ nvm use
 npm install --legacy-peer-deps
 
 # Create environment file
-cp .env.example .env.local
-# Edit .env.local and add your Google Client ID
+cp .env.example .env
+# Edit .env and add your Google Client ID
 
 # Start development server
 npm run dev
@@ -230,7 +230,7 @@ Your Google Spreadsheet should look like this:
 │   ├── App.jsx                 # Main app component with state management
 │   ├── main.jsx                # App entry point
 │   └── index.css               # Global styles and Tailwind config
-├── .env.local                   # Environment variables (not in git)
+├── .env                         # Environment variables (committed to git)
 ├── .env.example                 # Environment template
 ├── .gitignore                   # Git ignore rules
 ├── package.json                 # Dependencies and scripts
@@ -253,7 +253,7 @@ Your Google Spreadsheet should look like this:
 
 ### "Setup Required" Error
 
-- Make sure `.env.local` exists with `VITE_GOOGLE_CLIENT_ID`
+- Make sure `.env` exists with `VITE_GOOGLE_CLIENT_ID`
 - Restart the development server after creating the env file
 
 ### Authentication Failed
