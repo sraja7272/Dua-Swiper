@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // GitHub Pages base path - update if your repo name is different
+  base: '/Dua-Swiper/', // GitHub Pages base path - matches repo name
 })
