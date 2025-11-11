@@ -3,12 +3,14 @@ import GoogleLogin from './components/GoogleLogin'
 import ProfileMenu from './components/ProfileMenu'
 import SpreadsheetInput from './components/SpreadsheetInput'
 import CardDeck from './components/CardDeck'
+import DuasPanel from './components/DuasPanel'
 
 function App() {
   const [accessToken, setAccessToken] = useState(null)
   const [user, setUser] = useState(null)
   const [duas, setDuas] = useState([])
   const [showSpreadsheetInput, setShowSpreadsheetInput] = useState(false)
+  const [isDuasPanelOpen, setIsDuasPanelOpen] = useState(false)
 
   // Check for existing session on mount
   useEffect(() => {
@@ -145,8 +147,41 @@ function App() {
   const isSwipingPage = user && duas.length > 0 && !showSpreadsheetInput
 
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen relative flex">
+      {/* Duas Panel */}
+      <DuasPanel isOpen={isDuasPanelOpen} onClose={() => setIsDuasPanelOpen(false)} />
+
+      {/* Main Content Container */}
+      <div
+        className={`flex-1 transition-all duration-300 ease-in-out min-h-screen w-full ${
+          isDuasPanelOpen ? 'md:ml-96 ml-80' : ''
+        }`}
+      >
+        <div className="min-h-screen py-8 px-4">
+          {/* Toggle Button - Top Left */}
+          <button
+            onClick={() => setIsDuasPanelOpen(!isDuasPanelOpen)}
+            className={`fixed top-4 z-50 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-300 border border-gray-200 ${
+              isDuasPanelOpen ? 'md:left-[400px] left-[336px]' : 'left-4'
+            }`}
+            aria-label="Toggle duas panel"
+          >
+            <svg
+              className="w-6 h-6 text-gray-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+
+          <div className="max-w-7xl mx-auto">
         {/* Header - only show when not on swiping page */}
         {!isSwipingPage && (
           <header className="text-center mb-8">
@@ -203,7 +238,11 @@ function App() {
               </div>
               </>
             ) : (
-              <div className="fixed inset-0 flex flex-col">
+              <div 
+                className={`fixed inset-0 flex flex-col transition-all duration-300 ease-in-out ${
+                  isDuasPanelOpen ? 'md:left-96 left-80' : 'left-0'
+                }`}
+              >
                 {/* Profile Menu at top right */}
                 <div className="absolute top-4 right-4 z-50">
                   <ProfileMenu
@@ -231,6 +270,8 @@ function App() {
             </p>
           </footer>
         )}
+          </div>
+        </div>
       </div>
     </div>
   )

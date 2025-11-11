@@ -14,6 +14,12 @@
     user-select: text;
     -webkit-user-select: text;
   }
+  
+  /* Arabic font support */
+  .font-arabic {
+    font-family: 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', 'Tahoma', sans-serif;
+    direction: rtl;
+  }
 }
 
 @layer components {
