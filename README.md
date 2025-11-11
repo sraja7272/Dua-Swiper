@@ -244,7 +244,7 @@ Your Google Spreadsheet should look like this:
 
 - **Client-Side Only:** No backend server, no data storage
 - **OAuth Security:** Standard Google OAuth 2.0 flow
-- **Token Management:** Access tokens stored in browser localStorage
+- **Token Management:** Access tokens stored in browser sessionStorage
 - **Token Expiry:** Automatically handled (Google tokens expire after 1 hour)
 - **Data Privacy:** Your spreadsheet data never leaves your browser
 - **Permissions:** App only requests read-only access to spreadsheets

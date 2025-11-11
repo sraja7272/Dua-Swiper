@@ -14,7 +14,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     }
 
     const loadLastSpreadsheet = async () => {
-      const lastId = localStorage.getItem('lastSpreadsheetId')
+      const lastId = sessionStorage.getItem('lastSpreadsheetId')
       if (!lastId || !accessToken) {
         return
       }
@@ -41,10 +41,18 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         await new Promise(resolve => setTimeout(resolve, 500))
         
         onDataLoaded?.(duas)
-      } catch {
+      } catch (error) {
         // Clear the last ID if it fails to load
-        localStorage.removeItem('lastSpreadsheetId')
+        sessionStorage.removeItem('lastSpreadsheetId')
         setIsAutoLoading(false)
+        
+        // If authentication expired, clear user session
+        if (error.message && error.message.includes('Authentication expired')) {
+          sessionStorage.removeItem('user')
+          sessionStorage.removeItem('accessToken')
+          sessionStorage.removeItem('tokenExpiry')
+          window.location.reload()
+        }
       } finally {
         // Animation state will be reset when component unmounts
       }
@@ -57,13 +65,24 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     try {
       const duas = await fetchSheetData(spreadsheetId, accessToken)
       
-      // Save spreadsheet ID to localStorage for convenience
-      localStorage.setItem('lastSpreadsheetId', spreadsheetId)
+      // Save spreadsheet ID to sessionStorage for convenience (cleared on tab close)
+      sessionStorage.setItem('lastSpreadsheetId', spreadsheetId)
       
       onDataLoaded?.(duas)
     } catch (err) {
       // Error will be handled by the picker component if needed
       console.error('Error loading spreadsheet:', err)
+      
+      // If authentication expired, clear user session and reload
+      if (err.message && err.message.includes('Authentication expired')) {
+        sessionStorage.removeItem('user')
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiry')
+        sessionStorage.removeItem('lastSpreadsheetId')
+        window.location.reload()
+        return
+      }
+      
       throw err
     }
   }
