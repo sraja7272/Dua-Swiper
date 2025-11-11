@@ -8,9 +8,9 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
 
   // Check for existing auth on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
-    const storedToken = localStorage.getItem('accessToken')
-    const tokenExpiry = localStorage.getItem('tokenExpiry')
+    const storedUser = sessionStorage.getItem('user')
+    const storedToken = sessionStorage.getItem('accessToken')
+    const tokenExpiry = sessionStorage.getItem('tokenExpiry')
 
     if (storedUser && storedToken && tokenExpiry) {
       const now = Date.now()
@@ -21,9 +21,11 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
         getUser?.(userData)
       } else {
         // Token expired, clear storage
-        localStorage.removeItem('user')
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('tokenExpiry')
+        sessionStorage.removeItem('user')
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiry')
+        sessionStorage.removeItem('lastSpreadsheetId')
+        setUser(null)
       }
     }
   }, [onAuthSuccess])
@@ -51,10 +53,10 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
         // Calculate token expiry (Google tokens typically expire in 1 hour)
         const expiryTime = Date.now() + (tokenResponse.expires_in * 1000)
 
-        // Store user info and token
-        localStorage.setItem('user', JSON.stringify(userData))
-        localStorage.setItem('accessToken', tokenResponse.access_token)
-        localStorage.setItem('tokenExpiry', expiryTime.toString())
+        // Store user info and token in sessionStorage (cleared on tab close)
+        sessionStorage.setItem('user', JSON.stringify(userData))
+        sessionStorage.setItem('accessToken', tokenResponse.access_token)
+        sessionStorage.setItem('tokenExpiry', expiryTime.toString())
 
         setUser(userData)
         onAuthSuccess?.(tokenResponse.access_token, userData)
@@ -74,9 +76,9 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
   })
 
   const logout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('tokenExpiry')
+    sessionStorage.removeItem('user')
+    sessionStorage.removeItem('accessToken')
+    sessionStorage.removeItem('tokenExpiry')
     setUser(null)
     window.location.reload()
   }

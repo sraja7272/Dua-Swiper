@@ -12,9 +12,9 @@ function App() {
 
   // Check for existing session on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('accessToken')
-    const storedUser = localStorage.getItem('user')
-    const tokenExpiry = localStorage.getItem('tokenExpiry')
+    const storedToken = sessionStorage.getItem('accessToken')
+    const storedUser = sessionStorage.getItem('user')
+    const tokenExpiry = sessionStorage.getItem('tokenExpiry')
 
     if (storedToken && storedUser && tokenExpiry) {
       const now = Date.now()
@@ -22,10 +22,14 @@ function App() {
         setAccessToken(storedToken)
         setUser(JSON.parse(storedUser))
       } else {
-        // Token expired, clear storage
-        localStorage.removeItem('user')
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('tokenExpiry')
+        // Token expired, clear storage and user state
+        sessionStorage.removeItem('user')
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiry')
+        sessionStorage.removeItem('lastSpreadsheetId')
+        setUser(null)
+        setAccessToken(null)
+        setDuas([])
       }
     }
   }, [])
@@ -45,8 +49,9 @@ function App() {
   }
 
   const handleSignOut = () => {
-    // Clear all localStorage
-    localStorage.clear()
+    // Clear only app-specific sessionStorage keys
+    const appKeys = ['user', 'accessToken', 'tokenExpiry', 'lastSpreadsheetId']
+    appKeys.forEach(key => sessionStorage.removeItem(key))
     setUser(null)
     setAccessToken(null)
     setDuas([])
@@ -72,7 +77,7 @@ function App() {
 
   const handleChangeSpreadsheet = () => {
     // Clear the last spreadsheet ID so it doesn't auto-load on refresh
-    localStorage.removeItem('lastSpreadsheetId')
+    sessionStorage.removeItem('lastSpreadsheetId')
     setShowSpreadsheetInput(true)
     setDuas([])
   }

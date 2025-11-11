@@ -16,12 +16,6 @@ export default function QuoteCard({ duas, name }) {
             — {name}
           </p>
         </div>
-
-        {/* Decorative elements */}
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -mr-16 -mb-16"></div>
-        <div className="absolute top-1/4 right-8 w-2 h-2 bg-blue-300 rounded-full"></div>
-        <div className="absolute top-1/3 right-16 w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-        <div className="absolute bottom-1/4 left-12 w-2 h-2 bg-indigo-300 rounded-full"></div>
       </div>
     </div>
   )
