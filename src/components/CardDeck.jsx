@@ -107,25 +107,20 @@ export default function CardDeck({ duas: initialDuas }) {
 
   const showCompletionPopup = !canSwipe && duas.length === 0
 
+  const currentCount = duas.length > 0 ? (initialDuas.length - duas.length + currentIndex + 1) : initialDuas.length
+
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Card counter - hide when popup shows */}
-      {!showCompletionPopup && (
-        <div className="flex-shrink-0 flex justify-center pt-4 pb-2 z-40">
-          <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md">
-            <p className="text-xs font-medium text-gray-600">
-              {duas.length > 0 ? (initialDuas.length - duas.length + currentIndex + 1) : initialDuas.length} / {initialDuas.length}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Card container - centered with equal padding */}
       <div className="flex-1 flex items-center justify-center px-4 py-4 min-h-0">
         <div className="relative w-full max-w-md h-full max-h-full">
           {duas.length > 0 && currentIndex < duas.length && (
             <div className="absolute inset-0 w-full h-full">
-              <QuoteCard duas={duas[currentIndex].duas} name={duas[currentIndex].name} />
+              <QuoteCard 
+                duas={duas[currentIndex].duas} 
+                name={duas[currentIndex].name}
+                counter={!showCompletionPopup ? `${currentCount} / ${initialDuas.length}` : null}
+              />
             </div>
           )}
         </div>
