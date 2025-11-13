@@ -17,8 +17,14 @@
   
   /* Arabic font support */
   .font-arabic {
-    font-family: 'Amiri', 'Noto Sans Arabic', 'Arial Unicode MS', 'Tahoma', sans-serif;
+    font-family: arabic;
     direction: rtl;
+  }
+  
+  /* Apply Arabic font to all Arabic text elements */
+  [lang="ar"],
+  [dir="rtl"] {
+    font-family: arabic;
   }
 }
 
