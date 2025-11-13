@@ -20,11 +20,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+      
+      - name: Checkout main branch (for PR deployments)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -32,11 +39,26 @@ jobs:
           node-version: '22'
           cache: 'npm'
       
-      - name: Install dependencies
+      - name: Install dependencies (PR branch)
+        if: github.event_name == 'pull_request'
+        run: npm ci --legacy-peer-deps
+      
+      - name: Install dependencies (main branch)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm ci --legacy-peer-deps
+      
+      - name: Install dependencies (main branch for PR)
+        if: github.event_name == 'pull_request'
+        working-directory: main-branch
         run: npm ci --legacy-peer-deps
       
       - name: Build main branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm run build
+      
+      - name: Build main branch (for PR deployment)
+        if: github.event_name == 'pull_request'
+        working-directory: main-branch
         run: npm run build
       
       - name: Build PR branch
@@ -51,7 +73,8 @@ jobs:
             # For main branch push, deploy to root
             cp -r dist/* deploy/
           else
-            # For PR, deploy to dev subdirectory
+            # For PR, deploy main to root and PR to dev subdirectory
+            cp -r main-branch/dist/* deploy/
             mkdir -p deploy/dev
             cp -r dist/* deploy/dev/
           fi
