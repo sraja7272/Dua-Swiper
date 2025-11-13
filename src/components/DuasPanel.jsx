@@ -1,17 +1,41 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { commonDuas } from '../data/commonDuas'
 
 export default function DuasPanel({ isOpen, onClose }) {
   const [selectedDua, setSelectedDua] = useState(null)
+  const [savedScrollPosition, setSavedScrollPosition] = useState(0)
   const scrollContainerRef = useRef(null)
 
   const handleDuaClick = (dua) => {
+    // Save current scroll position before switching to detail view
+    if (scrollContainerRef.current) {
+      setSavedScrollPosition(scrollContainerRef.current.scrollTop)
+    }
     setSelectedDua(dua)
   }
 
   const handleBackToList = () => {
     setSelectedDua(null)
+    // Scroll position will be restored in useEffect
   }
+
+  // Scroll to top when showing detail view, restore position when showing list
+  useEffect(() => {
+    if (!scrollContainerRef.current) return
+
+    // Use requestAnimationFrame to ensure DOM has updated
+    requestAnimationFrame(() => {
+      if (!scrollContainerRef.current) return
+
+      if (selectedDua) {
+        // Scroll to top when showing detail view
+        scrollContainerRef.current.scrollTop = 0
+      } else {
+        // Restore scroll position when going back to list
+        scrollContainerRef.current.scrollTop = savedScrollPosition
+      }
+    })
+  }, [selectedDua, savedScrollPosition])
 
   // Prevent scroll propagation to parent when scrolling within panel
   const handleWheel = (e) => {
@@ -114,28 +138,32 @@ export default function DuasPanel({ isOpen, onClose }) {
         >
           {selectedDua ? (
             // Detail View
-            <div className="p-6 space-y-6">
-              <button
-                onClick={handleBackToList}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-4"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div className="relative">
+              {/* Sticky Back Button */}
+              <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
+                <button
+                  onClick={handleBackToList}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Back to List
-              </button>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  Back to List
+                </button>
+              </div>
 
-              <div className="space-y-6">
+              {/* Scrollable Content */}
+              <div className="p-6 space-y-6">
                 {/* Arabic Text */}
                 <div>
                   <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
