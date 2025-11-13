@@ -43,9 +43,9 @@ export const commonDuas = [
     id: 6,
     title: "Talbiyah for Umrah",
     description: "Reciting the Talbiyah frequently is encouraged",
-    arabic: "لَبَّيْكَ اللهُمَّ لَبَّيْكَ",
-    transliteration: "Labbayka Allahumma Labbayk",
-    meaning: "Here I am at your service, O Allah"
+    arabic: "لَبَّيْكَ اَللَّهُمَّ لَبَّيْكَ – لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ – إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ – لَا شَرِيكَ لَكَ", 
+    transliteration: "Labbayka Llāhumma labbayk, labbayka lā sharīka laka labbayk, inna l-ḥamda wa n-ni’mata, laka wa l-mulk, lā sharīka lak",
+    meaning: "Here I am, O Allah, here I am. Here I am, You have no partner, here I am. Verily all praise and blessings are Yours, and all sovereignty, You have no partner"
   },
   {
     id: 7,
@@ -65,6 +65,14 @@ export const commonDuas = [
   },
   {
     id: 9,
+    title: "Du’a to make intention to perform Tawaf",
+    description: "Recite this dua to make intention to perform Tawaf",
+    arabic: "اَللَّهُمَّ إِنِّي أُرِيدُ طَوَافَ بَيْتِكَ الْحَرَامِ فَيَسِّرْهُ لِي وَتَقَبَّلْهُ مِنِّي",
+    transliteration: "Allāhumma innī urīdu l-ṭawwafa baytika l-ḥarāmi fa yassirhu lī wa taqabbalhu minnī",
+    meaning: "O Allah, I intend to perform Tawaf of your Sacred House, so make it easy for me and accept it from me."
+  },
+  {
+    id: 10,
     title: "Du'a to recite during Tawaf",
     description: "Recite this dua while performing Tawaf around the Kaaba",
     arabic: "بِسْمِ اللهِ اللَّه أكْبَر وللّهِ الْحَمْدُ",
@@ -72,7 +80,7 @@ export const commonDuas = [
     meaning: "I start in the name of Allah, Allah is the Greatest, and all praise belongs to Him"
   },
   {
-    id: 10,
+    id: 11,
     title: "Du’a from the Yemeni corner to the Black Stone",
     description: "Recite this each round from the Yemeni corner to the Black Stone during Tawaf",
     arabic: "رَبَّنَا آتِنَا فِىْ الدُّنْيَا حَسَنَةً وَفِىْ الآخِرَةِ حَسَنَةً وَّقِنَا عَذَابَ النَّارِ",
@@ -80,7 +88,7 @@ export const commonDuas = [
     meaning: "Our Lord! Grant us goodness in this world and in the here after, and protect us from the torment of the Fire"
   },
   {
-    id: 11,
+    id: 12,
     title: "Du’a for drinking Zamzam",
     description: "Recite this dua before drinking Zamzam water",
     arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمَاً نَافِعَاًً وَرِزْقَاً وَاسِعَاًَ وَشِفَاءً مِنْ كُلِّ دَاءٍ",
@@ -88,15 +96,15 @@ export const commonDuas = [
     meaning: "O Allah, I seek from you beneficial knowledge, abundant sustenance, and healing from all ailments"
   },
   {
-    id: 12,
+    id: 13,
     title: "Du'a for Leaving The Masjid",
     description: "Recite this dua when leaving any masjid",
-    arabic: "اللهم إني أسألك من فضلك",
-    transliteration: "As-salamu ala rasulullah allahumma Inni as aluka min Fadlik",
-    meaning: "Peace be upon the messenger of Allah (saw). O Allah, I ask you (to grant me) from your favor"
+    arabic: "اَللَّهُـمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْـلِكَ، اَللَّهُـمَّ اعْصِمْنِـي مِنَ الشَّيْـطَانِ الرَّجِـيمِ",
+    transliteration: "Allāhumma innī as'aluka min fadlik, allāhumma ʿaṣimni minash-shayṭānir-raǧīm",
+    meaning: "O Allah, I ask You from Your favour. O Allah, guard me from the accursed Shaitan"
   },
   {
-    id: 13,
+    id: 14,
     title: "Du'a for Sa'ee",
     description: "Recite this dua before beginning Sa'ee (At the foot of Safā)",
     arabic: "إنَّ الصَّفَا وَالْمَرْوَةَ مِنْ شَعَآئِرِ اللَّهِ فَمَنْ حَجَّ الْبَيْتَ أوِ اعْتَمَرَ فَلاَ جُنَاحَ عَلَيْهِ أَنْ يَطَّوَّفَ بِهِمَا وَمَنْ تَطَوَّعَ خَيْراً فَإنَّ اللَّهَ شَاكِرٌ عَلِيْم ‐ نَبْدَأ بِمَا بَدَأ اللَّهُ بِهِ",
@@ -104,12 +112,12 @@ export const commonDuas = [
     meaning: "Verily! As-Safa and Al-Marwah are from the signs of Allah. It is not a sin for him who performs Hajj or 'Umrah to walk between them. Whoever does good voluntarily, then verily, Allah is All-Recogniser, All-Knower"
   },
   {
-    id: 14,
+    id: 15,
     title: "Du’a to recite at the tops of Safa and Marwah",
     description: "Recite this dua at the tops of Safa and Marwah during Sa'ee",
-    arabic: "اللَّهُ أكْبَرُ، اللَّهُ أكْبَرُ، اللَّهُ أكْبَرُ لاَ إلَهَ إلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَ لَهُ الْحَمْدُ يُحْيِي وَ يُمِيْتُ وَ هُوَ عَلَى كُلِّ شَيْءٍ قَدِيْر؛ لاَ إلَهَ إلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيْكَ لَه، أنْجَزَ وَعْدَهُ وَ نَصَرَ عَبْدَهُ وَ هَزَمَ الأحْزَابَ وَ حْدَهُ",
-    transliteration: "Allahu Akbar, Allahu Akbar, Allahu Akbar. Lā ilaha illallah, wahdahu lā sharīka lah, lahul mulk, wa lahul-hamd, yuhyi wa yumit, wa huwa ‘alā kulli shay’in qadeer; lā ilāha illallāh wahdahu lā sharīka lah, anjaza wa’dahu, wa nasara ‘abdahu, wa hazama l-ahzāba wahdah",
-    meaning: "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest. There is no one worthy of worship except Allah, alone with no partner. He has all power and praise. He gives life and causes death, and He has control over everything. There is no one worthy of worship except Allah, alone with no partner. He kept His promise, helped His servant, and defeated the enemies by Himself"
+    arabic: "اللّٰهُ أَكْبَرُ ❁ اللّٰهُ أَكْبَرُ ❁ اللّٰهُ أَكْبَرُ ❁ وَلِلّٰهِ الْحَمْدُ ❁لَآ إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ لاَ شَرِيكَ لَهُ ❁ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ ❁ يُحْيِي وَيُمِيتُ ❁ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ ❁لَآ إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ ❁ اَنْجَزَ وَعْدَهُ وَنَصَرَ عَبْدَهُ وَهَزَمَ اَلْأَحْزَابَ وَحْدَهُ ❁",
+    transliteration: "Allāhu akbar, Allāhu akbar, Allāhu akbar, wa li Llāhi l-ḥamd. La ilāha illa Llāhu waḥdahu la sharīka lah, lahu l-mulku wa lahu l-ḥamd, yuḥīī wa yumīt, wa huwa ʿalā kulli shay’in qadīr. La ilāha illa Llāhu waḥdah, anjaza waʿdahu wa naṣara ʿabdahu wa hazama l-aḥzāba waḥdah.",
+    meaning: "Allah is the Greatest; Allah is the Greatest; Allah is the Greatest, and to Allah belongs all praise. There is no deity except Allah, alone without a partner. To Him belongs the Dominion, and to Him belongs all praise. He gives life and death, and He has power over everything. There is no deity except Allah alone. He fulfilled His promise, supported His slave and defeated the Confederates alone."
   }
 ]
 

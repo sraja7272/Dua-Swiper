@@ -141,7 +141,7 @@ export default function DuasPanel({ isOpen, onClose }) {
                   <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">
                     Arabic
                   </h3>
-                  <p className="text-2xl md:text-3xl text-gray-900 font-arabic text-right leading-relaxed">
+                  <p lang="ar" dir="rtl" className="text-2xl md:text-3xl text-gray-900 font-arabic text-right leading-relaxed">
                     {selectedDua.arabic}
                   </p>
                 </div>
