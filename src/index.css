@@ -2,11 +2,13 @@
 
 @layer base {
   body {
-    @apply min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100;
+    @apply bg-gradient-to-br from-blue-50 to-indigo-100;
     @apply text-gray-900;
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     user-select: none;
+    min-height: 100vh; /* Fallback for browsers that don't support dvh */
+    min-height: 100dvh; /* Dynamic viewport height - adjusts for browser UI */
   }
   
   /* Allow text selection in cards */
@@ -43,5 +45,21 @@
   
   .card {
     @apply bg-white rounded-2xl shadow-xl p-8;
+  }
+  
+  /* Dynamic viewport height utilities with fallback */
+  .h-dvh {
+    height: 100vh; /* Fallback */
+    height: 100dvh; /* Dynamic viewport height */
+  }
+  
+  .min-h-dvh {
+    min-height: 100vh; /* Fallback */
+    min-height: 100dvh; /* Dynamic viewport height */
+  }
+  
+  .max-h-dvh {
+    max-height: 100vh; /* Fallback */
+    max-height: 100dvh; /* Dynamic viewport height */
   }
 }

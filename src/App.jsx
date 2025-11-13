@@ -147,11 +147,11 @@ function App() {
   const isSwipingPage = user && duas.length > 0 && !showSpreadsheetInput
 
   return (
-    <div className="min-h-screen relative flex">
+    <div className="relative flex min-h-dvh">
       {/* Backdrop overlay */}
       {isDuasPanelOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-30"
+          className="fixed inset-0 h-dvh bg-black/20 z-30"
           onClick={() => setIsDuasPanelOpen(false)}
           aria-hidden="true"
         />
@@ -161,8 +161,8 @@ function App() {
       <DuasPanel isOpen={isDuasPanelOpen} onClose={() => setIsDuasPanelOpen(false)} />
 
       {/* Main Content Container */}
-      <div className="flex-1 min-h-screen w-full">
-        <div className="min-h-screen py-8 px-4">
+      <div className="flex-1 w-full min-h-dvh">
+        <div className="py-8 px-4 min-h-dvh">
           {/* Toggle Button - Top Left */}
           <button
             onClick={() => setIsDuasPanelOpen(!isDuasPanelOpen)}
@@ -243,7 +243,7 @@ function App() {
               </div>
               </>
             ) : (
-              <div className="fixed inset-0 flex flex-col">
+              <div className="fixed inset-0 h-dvh flex flex-col">
                 {/* Profile Menu at top right */}
                 <div className="absolute top-4 right-4 z-50">
                   <ProfileMenu
