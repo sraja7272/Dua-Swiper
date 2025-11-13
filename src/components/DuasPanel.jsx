@@ -97,11 +97,11 @@ export default function DuasPanel({ isOpen, onClose }) {
 
   return (
     <div
-      className={`fixed left-0 top-0 h-screen bg-white shadow-2xl z-40 w-80 md:w-96 transform transition-transform duration-300 ease-in-out ${
+      className={`fixed left-0 top-0 h-dvh max-h-dvh bg-white shadow-2xl z-40 w-80 md:w-96 transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <div className="h-screen flex flex-col max-h-screen">
+      <div className="flex flex-col h-dvh max-h-dvh">
         {/* Header */}
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <h2 className="text-xl font-bold text-gray-900">
