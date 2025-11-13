@@ -1,9 +1,20 @@
-export default function QuoteCard({ duas, name }) {
+export default function QuoteCard({ duas, name, counter }) {
   return (
     <div className="absolute w-full h-full">
       <div className="relative w-full h-full bg-gradient-to-br from-white to-blue-50 rounded-3xl shadow-2xl p-8 flex flex-col justify-between">
+        {/* Counter at top */}
+        {counter && (
+          <div className="flex-shrink-0 flex justify-center mb-4 z-20">
+            <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md">
+              <p className="text-xs font-medium text-gray-600">
+                {counter}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Duas text */}
-        <div className="flex-1 flex items-center justify-center px-4 py-4 relative z-10 overflow-hidden min-h-0">
+        <div className={`flex-1 flex items-center justify-center px-4 relative z-10 overflow-hidden min-h-0 ${counter ? 'pt-0' : 'py-4'}`}>
           <p className="text-lg md:text-xl lg:text-2xl text-gray-800 font-serif text-center leading-relaxed break-words overflow-wrap-anywhere max-h-full overflow-y-auto w-full">
             {duas}
           </p>

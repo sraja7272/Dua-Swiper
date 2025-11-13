@@ -107,25 +107,20 @@ export default function CardDeck({ duas: initialDuas }) {
 
   const showCompletionPopup = !canSwipe && duas.length === 0
 
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4">
-      {/* Card counter - hide when popup shows */}
-      {!showCompletionPopup && (
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-40">
-          <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md">
-            <p className="text-xs font-medium text-gray-600">
-              {duas.length > 0 ? (initialDuas.length - duas.length + currentIndex + 1) : initialDuas.length} / {initialDuas.length}
-            </p>
-          </div>
-        </div>
-      )}
+  const currentCount = duas.length > 0 ? (initialDuas.length - duas.length + currentIndex + 1) : initialDuas.length
 
-      {/* Card container */}
-      <div className="relative w-full max-w-md flex-1 flex items-center justify-center px-4 pb-24 md:pb-0">
-        <div className="relative w-full h-full" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '300px' }}>
+  return (
+    <div className="w-full h-full flex flex-col">
+      {/* Card container - centered with equal padding top and bottom */}
+      <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-20 min-h-0">
+        <div className="relative w-full max-w-md h-full max-h-full">
           {duas.length > 0 && currentIndex < duas.length && (
-            <div className="absolute w-full h-full">
-              <QuoteCard duas={duas[currentIndex].duas} name={duas[currentIndex].name} />
+            <div className="absolute inset-0 w-full h-full">
+              <QuoteCard 
+                duas={duas[currentIndex].duas} 
+                name={duas[currentIndex].name}
+                counter={!showCompletionPopup ? `${currentCount} / ${initialDuas.length}` : null}
+              />
             </div>
           )}
         </div>
@@ -133,7 +128,7 @@ export default function CardDeck({ duas: initialDuas }) {
 
       {/* Navigation buttons - hide when popup shows */}
       {!showCompletionPopup && (
-        <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex justify-center items-center gap-4">
+        <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 flex justify-center items-center gap-4 z-40">
           <button
             onClick={goBack}
             disabled={!canGoBack}
