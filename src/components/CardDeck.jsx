@@ -111,8 +111,8 @@ export default function CardDeck({ duas: initialDuas }) {
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Card container - centered with equal padding */}
-      <div className="flex-1 flex items-center justify-center px-4 py-4 min-h-0">
+      {/* Card container - centered with equal padding top and bottom */}
+      <div className="flex-1 flex items-center justify-center px-4 pt-20 pb-20 min-h-0">
         <div className="relative w-full max-w-md h-full max-h-full">
           {duas.length > 0 && currentIndex < duas.length && (
             <div className="absolute inset-0 w-full h-full">
@@ -128,7 +128,7 @@ export default function CardDeck({ duas: initialDuas }) {
 
       {/* Navigation buttons - hide when popup shows */}
       {!showCompletionPopup && (
-        <div className="flex-shrink-0 flex justify-center items-center gap-4 pb-4 md:pb-6 pt-2 z-40">
+        <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 flex justify-center items-center gap-4 z-40">
           <button
             onClick={goBack}
             disabled={!canGoBack}
