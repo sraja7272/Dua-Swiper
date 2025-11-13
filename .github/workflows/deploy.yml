@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 permissions:
   contents: read
@@ -30,8 +31,26 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       
-      - name: Build
+      - name: Build main branch
+        if: github.ref == 'refs/heads/main'
         run: npm run build
+      
+      - name: Build dev branch
+        if: github.ref == 'refs/heads/dev'
+        run: BASE=/Dua-Swiper/dev/ npm run build
+      
+      - name: Prepare deployment structure
+        run: |
+          mkdir -p deploy
+          
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            # For main branch, deploy to root
+            cp -r dist/* deploy/
+          else
+            # For dev branch, deploy to dev subdirectory
+            mkdir -p deploy/dev
+            cp -r dist/* deploy/dev/
+          fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -39,7 +58,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './deploy'
 
   deploy:
     environment:
@@ -51,4 +70,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
