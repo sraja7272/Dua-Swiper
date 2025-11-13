@@ -148,15 +148,20 @@ function App() {
 
   return (
     <div className="min-h-screen relative flex">
+      {/* Backdrop overlay */}
+      {isDuasPanelOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 z-30"
+          onClick={() => setIsDuasPanelOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      
       {/* Duas Panel */}
       <DuasPanel isOpen={isDuasPanelOpen} onClose={() => setIsDuasPanelOpen(false)} />
 
       {/* Main Content Container */}
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out min-h-screen w-full ${
-          isDuasPanelOpen ? 'md:ml-96 ml-80' : ''
-        }`}
-      >
+      <div className="flex-1 min-h-screen w-full">
         <div className="min-h-screen py-8 px-4">
           {/* Toggle Button - Top Left */}
           <button
@@ -238,11 +243,7 @@ function App() {
               </div>
               </>
             ) : (
-              <div 
-                className={`fixed inset-0 flex flex-col transition-all duration-300 ease-in-out ${
-                  isDuasPanelOpen ? 'md:left-96 left-80' : 'left-0'
-                }`}
-              >
+              <div className="fixed inset-0 flex flex-col">
                 {/* Profile Menu at top right */}
                 <div className="absolute top-4 right-4 z-50">
                   <ProfileMenu
