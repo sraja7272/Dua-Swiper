@@ -166,8 +166,8 @@ function App() {
           {/* Toggle Button - Top Left */}
           <button
             onClick={() => setIsDuasPanelOpen(!isDuasPanelOpen)}
-            className={`fixed top-4 z-50 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-300 border border-gray-200 ${
-              isDuasPanelOpen ? 'md:left-[400px] left-[336px]' : 'left-4'
+            className={`fixed top-4 left-4 z-50 p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-300 border border-gray-200 ${
+              isDuasPanelOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
             }`}
             aria-label="Toggle duas panel"
           >
