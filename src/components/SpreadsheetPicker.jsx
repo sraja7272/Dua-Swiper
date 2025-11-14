@@ -66,6 +66,8 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
               setIsLoading(true)
               setError('')
               await onSpreadsheetSelected?.(spreadsheetId)
+              // If successful, loading will be handled by the component (e.g., column selector or data loaded)
+              setIsLoading(false)
             } catch (err) {
               setIsLoading(false)
               // Display error message in UI

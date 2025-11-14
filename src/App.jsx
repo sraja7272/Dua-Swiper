@@ -52,7 +52,7 @@ function App() {
 
   const handleSignOut = () => {
     // Clear only app-specific sessionStorage keys
-    const appKeys = ['user', 'accessToken', 'tokenExpiry', 'lastSpreadsheetId']
+    const appKeys = ['user', 'accessToken', 'tokenExpiry', 'lastSpreadsheetId', 'lastNameColumnIndex', 'lastDuasColumnIndex']
     appKeys.forEach(key => sessionStorage.removeItem(key))
     setUser(null)
     setAccessToken(null)
@@ -78,8 +78,10 @@ function App() {
   }
 
   const handleChangeSpreadsheet = () => {
-    // Clear the last spreadsheet ID so it doesn't auto-load on refresh
+    // Clear the last spreadsheet ID and column indices so it doesn't auto-load on refresh
     sessionStorage.removeItem('lastSpreadsheetId')
+    sessionStorage.removeItem('lastNameColumnIndex')
+    sessionStorage.removeItem('lastDuasColumnIndex')
     setShowSpreadsheetInput(true)
     setDuas([])
   }
