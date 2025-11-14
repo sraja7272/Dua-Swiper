@@ -7,8 +7,13 @@ export default function InstallPrompt() {
   const [showManualInstructions, setShowManualInstructions] = useState(false)
 
   useEffect(() => {
+    // Detect iOS (Safari, Chrome, or any browser on iOS)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    const isInStandaloneMode = window.navigator.standalone === true || isStandalone
+
     // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (isInStandaloneMode) {
       setIsInstalled(true)
       return
     }
@@ -24,7 +29,16 @@ export default function InstallPrompt() {
       }
     }
 
-    // Listen for the beforeinstallprompt event
+    // For iOS (Safari, Chrome, or any browser), show the prompt automatically
+    // iOS doesn't support beforeinstallprompt, so we show manual instructions
+    if (isIOS && !isInStandaloneMode) {
+      setTimeout(() => {
+        setShowPrompt(true)
+      }, 2000)
+      return
+    }
+
+    // Listen for the beforeinstallprompt event (Android/Desktop)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -42,12 +56,17 @@ export default function InstallPrompt() {
   }, [])
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
+    // Detect iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    
+    // On iOS or if no deferred prompt, show manual instructions
+    if (isIOS || !deferredPrompt) {
+      setShowPrompt(false)
       setShowManualInstructions(true)
       return
     }
 
-    // Show the install prompt
+    // Show the install prompt (Android/Desktop)
     deferredPrompt.prompt()
 
     // Wait for the user to respond
@@ -119,10 +138,10 @@ export default function InstallPrompt() {
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                     </svg>
-                    iOS (Safari)
+                    iOS ({isChrome ? 'Chrome' : 'Safari'})
                   </h3>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                    <li>Tap the Share button <svg className="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg> at the bottom</li>
+                    <li>Tap the Share button <svg className="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg> {isChrome ? 'at the bottom right' : 'at the bottom'}</li>
                     <li>Scroll down and tap "Add to Home Screen"</li>
                     <li>Tap "Add" to confirm</li>
                   </ol>
@@ -204,7 +223,7 @@ export default function InstallPrompt() {
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 mb-1">Install Duas Swiper</h3>
           <p className="text-sm text-gray-600 mb-3">
-            Add to your home screen for quick access and offline use
+            Add to your home screen for quick access
           </p>
           <div className="flex gap-2">
             <button
