@@ -39,6 +39,14 @@ async function generateIcons() {
       .toFile(maskablePath)
     console.log(`Generated ${maskablePath}`)
     
+    // Generate favicon.png (32x32) - modern browsers support PNG favicons
+    const faviconPath = join(publicDir, 'favicon.png')
+    await sharp(iconBuffer)
+      .resize(32, 32)
+      .png()
+      .toFile(faviconPath)
+    console.log(`Generated ${faviconPath}`)
+    
     console.log('All icons generated successfully!')
   } catch (error) {
     console.error('Error generating icons:', error)
