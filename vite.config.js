@@ -3,11 +3,14 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
+const base = process.env.BASE || '/Dua-Swiper/'
+
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      base: base,
       includeAssets: ['icon.png', 'favicon.png', 'vite.svg'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
@@ -72,8 +75,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: base,
+        start_url: base,
         icons: [
           {
             src: 'pwa-64x64.png',
@@ -104,5 +107,5 @@ export default defineConfig({
       }
     })
   ],
-  base: process.env.BASE || '/Dua-Swiper/', // GitHub Pages base path - matches repo name, or /Dua-Swiper/dev/ for dev branch
+  base: base, // GitHub Pages base path - matches repo name, or /Dua-Swiper/dev/ for dev branch
 })
