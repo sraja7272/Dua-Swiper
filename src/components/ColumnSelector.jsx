@@ -30,7 +30,7 @@ export default function ColumnSelector({ headers, onColumnsSelected, onCancel })
     }
 
     if (selectedNameColumn === selectedDuasColumn) {
-      setError('Name and Duas columns must be different.')
+      setError('The name and duas columns must be different.')
       return
     }
 

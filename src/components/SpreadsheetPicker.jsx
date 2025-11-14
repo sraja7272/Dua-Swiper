@@ -99,7 +99,7 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
         </h2>
         <p className="text-gray-600 mb-6">
           Click the button below to browse and select your Google Spreadsheet. 
-          Your spreadsheet should have columns named "Name" and "Duas".
+          Your spreadsheet should have columns containing "name" and "dua" in their titles.
         </p>
 
         <div className="space-y-4">
@@ -162,7 +162,7 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h3 className="font-medium text-blue-900 mb-2">Setup Instructions:</h3>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-            <li>Create a Google Spreadsheet with columns "Name" and "Duas"</li>
+            <li>Create a Google Spreadsheet with columns containing "name" and "dua" in their titles</li>
             <li>Make sure you have access to the spreadsheet (own it or it's shared with you)</li>
             <li>Click the button above to open the file picker</li>
             <li>Select your spreadsheet from the list</li>
