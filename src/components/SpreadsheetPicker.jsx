@@ -54,15 +54,24 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
       const picker = new window.google.picker.PickerBuilder()
         .addView(docsView)
         .setOAuthToken(accessToken)
-        .setCallback((data) => {
+        .setCallback(async (data) => {
           setIsLoading(false)
           
           if (data[window.google.picker.Response.ACTION] === window.google.picker.Action.PICKED) {
             const file = data[window.google.picker.Response.DOCUMENTS][0]
             const spreadsheetId = file.id
             
-            // Call the callback with the selected spreadsheet ID
-            onSpreadsheetSelected?.(spreadsheetId)
+            // Call the callback with the selected spreadsheet ID and handle errors
+            try {
+              setIsLoading(true)
+              setError('')
+              await onSpreadsheetSelected?.(spreadsheetId)
+            } catch (err) {
+              setIsLoading(false)
+              // Display error message in UI
+              setError(err.message || 'Failed to load spreadsheet. Please try again.')
+              console.error('Error loading spreadsheet:', err)
+            }
           } else if (data[window.google.picker.Response.ACTION] === window.google.picker.Action.CANCEL) {
             // User cancelled, do nothing
             setIsLoading(false)

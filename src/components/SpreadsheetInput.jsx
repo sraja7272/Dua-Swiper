@@ -70,9 +70,6 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
       
       onDataLoaded?.(duas)
     } catch (err) {
-      // Error will be handled by the picker component if needed
-      console.error('Error loading spreadsheet:', err)
-      
       // If authentication expired, clear user session and reload
       if (err.message && err.message.includes('Authentication expired')) {
         sessionStorage.removeItem('user')
@@ -83,6 +80,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         return
       }
       
+      // Re-throw error so it can be caught and displayed in the UI by SpreadsheetPicker
       throw err
     }
   }
