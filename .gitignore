@@ -28,3 +28,8 @@ dist-ssr
 .env.production.local
 .env.development.local
 .env.test.local
+
+# Generated PWA icons (can be regenerated from icon.png)
+public/pwa-*.png
+public/maskable-icon-*.png
+public/favicon.png
