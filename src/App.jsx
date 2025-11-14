@@ -4,6 +4,7 @@ import ProfileMenu from './components/ProfileMenu'
 import SpreadsheetInput from './components/SpreadsheetInput'
 import CardDeck from './components/CardDeck'
 import DuasPanel from './components/DuasPanel'
+import InstallPrompt from './components/InstallPrompt'
 
 function App() {
   const [accessToken, setAccessToken] = useState(null)
@@ -276,6 +277,9 @@ function App() {
           </div>
         </div>
       </div>
+      
+      {/* Install Prompt */}
+      <InstallPrompt />
     </div>
   )
 }

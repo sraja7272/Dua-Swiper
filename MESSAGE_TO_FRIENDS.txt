@@ -1,0 +1,18 @@
+Hey! 👋 I made a cool app called "Duas Swiper" - it's like Tinder but for duas! 😄
+
+Here's how it works:
+1. Sign in with your Google account
+2. Create a Google Spreadsheet with two columns: one with "name" in the title and one with "dua" in the title
+3. Paste your spreadsheet URL into the app
+4. Swipe through your duas like cards! Swipe left/right on mobile or use arrow buttons on desktop
+
+The app is completely private - all your data stays in your browser, nothing gets stored on any server.
+
+To install it as an app on your phone (PWA):
+📱 iPhone: Open the site in Safari, tap the Share button, then "Add to Home Screen"
+🤖 Android: Open the site in Chrome, tap the menu (3 dots), then "Install app" or "Add to Home Screen"
+
+Check it out: [YOUR_URL_HERE]
+
+Let me know what you think! 🚀
+
