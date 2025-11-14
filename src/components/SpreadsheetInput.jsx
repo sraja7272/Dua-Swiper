@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
-import { fetchSheetData } from '../utils/sheetsApi'
+import { fetchSheetData, fetchSheetHeaders } from '../utils/sheetsApi'
 import SpreadsheetPicker from './SpreadsheetPicker'
+import ColumnSelector from './ColumnSelector'
 
 export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAutoLoad = false }) {
   const [isAutoLoading, setIsAutoLoading] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
+  const [showColumnSelector, setShowColumnSelector] = useState(false)
+  const [columnSelectorSpreadsheetId, setColumnSelectorSpreadsheetId] = useState(null)
+  const [columnSelectorHeaders, setColumnSelectorHeaders] = useState([])
 
   // Automatically load last spreadsheet on mount if it exists
   useEffect(() => {
@@ -19,6 +23,12 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         return
       }
 
+      // Check if we have saved column indices
+      const savedNameColumnIndex = sessionStorage.getItem('lastNameColumnIndex')
+      const savedDuasColumnIndex = sessionStorage.getItem('lastDuasColumnIndex')
+      const nameColumnIndex = savedNameColumnIndex !== null ? parseInt(savedNameColumnIndex) : null
+      const duasColumnIndex = savedDuasColumnIndex !== null ? parseInt(savedDuasColumnIndex) : null
+
       setIsAutoLoading(true)
       setShowAnimation(false)
 
@@ -26,7 +36,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
       const minDisplayTime = 2000 // 2 seconds
 
       try {
-        const duas = await fetchSheetData(lastId, accessToken)
+        const duas = await fetchSheetData(lastId, accessToken, nameColumnIndex, duasColumnIndex)
         
         // Ensure minimum display time
         const elapsed = Date.now() - startTime
@@ -42,8 +52,25 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         
         onDataLoaded?.(duas)
       } catch (error) {
-        // Clear the last ID if it fails to load
+        // If it's a column error and we have saved indices, they might be invalid now
+        // Try to show column selector
+        if (error.message && (error.message.includes('column') || error.message.includes('Could not find'))) {
+          try {
+            const headers = await fetchSheetHeaders(lastId, accessToken)
+            setColumnSelectorSpreadsheetId(lastId)
+            setColumnSelectorHeaders(headers)
+            setShowColumnSelector(true)
+            setIsAutoLoading(false)
+            return
+          } catch (headerErr) {
+            // If fetching headers fails, fall through to clear storage
+          }
+        }
+        
+        // Clear the last ID and column indices if it fails to load
         sessionStorage.removeItem('lastSpreadsheetId')
+        sessionStorage.removeItem('lastNameColumnIndex')
+        sessionStorage.removeItem('lastDuasColumnIndex')
         setIsAutoLoading(false)
         
         // If authentication expired, clear user session
@@ -67,24 +94,83 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
       
       // Save spreadsheet ID to sessionStorage for convenience (cleared on tab close)
       sessionStorage.setItem('lastSpreadsheetId', spreadsheetId)
+      // Clear column indices since auto-detection worked
+      sessionStorage.removeItem('lastNameColumnIndex')
+      sessionStorage.removeItem('lastDuasColumnIndex')
       
       onDataLoaded?.(duas)
     } catch (err) {
-      // Error will be handled by the picker component if needed
-      console.error('Error loading spreadsheet:', err)
-      
       // If authentication expired, clear user session and reload
       if (err.message && err.message.includes('Authentication expired')) {
         sessionStorage.removeItem('user')
         sessionStorage.removeItem('accessToken')
         sessionStorage.removeItem('tokenExpiry')
         sessionStorage.removeItem('lastSpreadsheetId')
+        sessionStorage.removeItem('lastNameColumnIndex')
+        sessionStorage.removeItem('lastDuasColumnIndex')
         window.location.reload()
         return
       }
       
+      // If it's a column error, show column selector instead of error message
+      if (err.message && (err.message.includes('column') || err.message.includes('Could not find'))) {
+        try {
+          const headers = await fetchSheetHeaders(spreadsheetId, accessToken)
+          setColumnSelectorSpreadsheetId(spreadsheetId)
+          setColumnSelectorHeaders(headers)
+          setShowColumnSelector(true)
+          return
+        } catch (headerErr) {
+          // If fetching headers fails, fall through to show error
+        }
+      }
+      
+      // Re-throw error so it can be caught and displayed in the UI by SpreadsheetPicker
       throw err
     }
+  }
+
+  const handleColumnsSelected = async (nameColumnIndex, duasColumnIndex) => {
+    try {
+      const duas = await fetchSheetData(
+        columnSelectorSpreadsheetId,
+        accessToken,
+        nameColumnIndex,
+        duasColumnIndex
+      )
+      
+      // Save spreadsheet ID and column indices to sessionStorage
+      sessionStorage.setItem('lastSpreadsheetId', columnSelectorSpreadsheetId)
+      sessionStorage.setItem('lastNameColumnIndex', nameColumnIndex.toString())
+      sessionStorage.setItem('lastDuasColumnIndex', duasColumnIndex.toString())
+      
+      setShowColumnSelector(false)
+      setColumnSelectorSpreadsheetId(null)
+      setColumnSelectorHeaders([])
+      
+      onDataLoaded?.(duas)
+    } catch (err) {
+      // If authentication expired, clear user session and reload
+      if (err.message && err.message.includes('Authentication expired')) {
+        sessionStorage.removeItem('user')
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiry')
+        sessionStorage.removeItem('lastSpreadsheetId')
+        sessionStorage.removeItem('lastNameColumnIndex')
+        sessionStorage.removeItem('lastDuasColumnIndex')
+        window.location.reload()
+        return
+      }
+      
+      // Error will be shown in ColumnSelector component
+      throw err
+    }
+  }
+
+  const handleColumnSelectorCancel = () => {
+    setShowColumnSelector(false)
+    setColumnSelectorSpreadsheetId(null)
+    setColumnSelectorHeaders([])
   }
 
 
@@ -129,6 +215,17 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
           )}
         </div>
       </div>
+    )
+  }
+
+  // Show column selector if needed
+  if (showColumnSelector) {
+    return (
+      <ColumnSelector
+        headers={columnSelectorHeaders}
+        onColumnsSelected={handleColumnsSelected}
+        onCancel={handleColumnSelectorCancel}
+      />
     )
   }
 

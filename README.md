@@ -1,11 +1,11 @@
 # Duas Swiper
 
-A mobile-friendly web app that lets you sign in with Google, link your spreadsheet with Name/Duas columns, and swipe through beautiful duas cards. Built with React, Vite, and Tailwind CSS.
+A mobile-friendly web app that lets you sign in with Google, link your spreadsheet with columns containing "name" and "dua", and swipe through beautiful dua cards. Built with React, Vite, and Tailwind CSS.
 
 ## Features
 
 - **Google OAuth Authentication** - Secure sign-in with your Google account
-- **Google Sheets Integration** - Link any spreadsheet with "Name" and "Duas" columns
+- **Google Sheets Integration** - Link any spreadsheet with columns containing "name" and "dua"
 - **Swipeable Cards** - Intuitive touch/mouse gestures for browsing duas
 - **Mobile-First Design** - Beautiful, responsive UI that works on all devices
 - **Client-Side Only** - No backend required, all data stays in your browser
@@ -21,7 +21,7 @@ Once deployed, your app will be available at: `https://sraja7272.github.io/Dua-S
   - If using nvm, run `nvm use` to automatically switch to the correct version (specified in `.nvmrc`)
 - npm 10+ or yarn
 - A Google Cloud account (free)
-- A Google Spreadsheet with "Name" and "Duas" columns
+- A Google Spreadsheet with columns containing "name" and "dua" in their titles
 
 ## Google Cloud Setup
 
@@ -170,9 +170,9 @@ After your app is deployed:
    - Authorize the app to access your Google Sheets
 
 2. **Link Your Spreadsheet**
-   - Create a Google Spreadsheet with these columns:
-     - `Name` (or `author`)
-     - `Duas` (or `quote`, `text`, or `content`)
+   - Create a Google Spreadsheet with columns that contain "name" and "dua" in their titles
+     - Examples: "Name", "Author Name", "Full Name" (for name column)
+     - Examples: "Duas", "Dua Text", "My Duas" (for duas column)
    - Make sure you have access to the spreadsheet
    - Copy the spreadsheet URL
    - Paste it into the input field
@@ -196,8 +196,10 @@ Your Google Spreadsheet should look like this:
 
 **Requirements:**
 - First row must be headers
-- Must have columns named "Name" and "Duas" (case-insensitive)
-- Alternative column names: "author" for Name, "quote", "text", or "content" for Duas
+- Must have columns containing "name" and "dua" in their titles (case-insensitive)
+- Examples: "Name", "Author Name", "Full Name" (for name column)
+- Examples: "Duas", "Dua Text", "My Duas" (for duas column)
+- If columns aren't automatically detected, you can manually select them
 - Empty rows are automatically skipped
 
 ## Technology Stack
@@ -286,7 +288,7 @@ Open `http://localhost:5173` in your browser.
 ### 4. Test Locally
 
 1. Sign in with Google
-2. Create a test spreadsheet with "Name" and "Duas" columns
+2. Create a test spreadsheet with columns containing "name" and "dua" in their titles
 3. Copy the spreadsheet URL
 4. Load it in the app
 5. Test the swipe functionality
@@ -313,7 +315,7 @@ Open `http://localhost:5173` in your browser.
 ### Spreadsheet Not Loading
 
 - Verify you have access to the spreadsheet
-- Check that columns are named "Name" and "Duas" (or "author" and "quote")
+- Check that columns contain "name" and "dua" in their titles (case-insensitive)
 - Try making the spreadsheet public ("Anyone with the link can view")
 - Check browser console for detailed error messages
 

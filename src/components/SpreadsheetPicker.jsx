@@ -54,15 +54,26 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
       const picker = new window.google.picker.PickerBuilder()
         .addView(docsView)
         .setOAuthToken(accessToken)
-        .setCallback((data) => {
+        .setCallback(async (data) => {
           setIsLoading(false)
           
           if (data[window.google.picker.Response.ACTION] === window.google.picker.Action.PICKED) {
             const file = data[window.google.picker.Response.DOCUMENTS][0]
             const spreadsheetId = file.id
             
-            // Call the callback with the selected spreadsheet ID
-            onSpreadsheetSelected?.(spreadsheetId)
+            // Call the callback with the selected spreadsheet ID and handle errors
+            try {
+              setIsLoading(true)
+              setError('')
+              await onSpreadsheetSelected?.(spreadsheetId)
+              // If successful, loading will be handled by the component (e.g., column selector or data loaded)
+              setIsLoading(false)
+            } catch (err) {
+              setIsLoading(false)
+              // Display error message in UI
+              setError(err.message || 'Failed to load spreadsheet. Please try again.')
+              console.error('Error loading spreadsheet:', err)
+            }
           } else if (data[window.google.picker.Response.ACTION] === window.google.picker.Action.CANCEL) {
             // User cancelled, do nothing
             setIsLoading(false)
@@ -88,7 +99,7 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
         </h2>
         <p className="text-gray-600 mb-6">
           Click the button below to browse and select your Google Spreadsheet. 
-          Your spreadsheet should have columns named "Name" and "Duas".
+          Your spreadsheet should have columns containing "name" and "dua" in their titles.
         </p>
 
         <div className="space-y-4">
@@ -151,7 +162,7 @@ export default function SpreadsheetPicker({ accessToken, onSpreadsheetSelected, 
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h3 className="font-medium text-blue-900 mb-2">Setup Instructions:</h3>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-            <li>Create a Google Spreadsheet with columns "Name" and "Duas"</li>
+            <li>Create a Google Spreadsheet with columns containing "name" and "dua" in their titles</li>
             <li>Make sure you have access to the spreadsheet (own it or it's shared with you)</li>
             <li>Click the button above to open the file picker</li>
             <li>Select your spreadsheet from the list</li>
