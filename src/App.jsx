@@ -14,9 +14,9 @@ function App() {
 
   // Check for existing session on mount
   useEffect(() => {
-    const storedToken = sessionStorage.getItem('accessToken')
-    const storedUser = sessionStorage.getItem('user')
-    const tokenExpiry = sessionStorage.getItem('tokenExpiry')
+    const storedToken = localStorage.getItem('accessToken')
+    const storedUser = localStorage.getItem('user')
+    const tokenExpiry = localStorage.getItem('tokenExpiry')
 
     if (storedToken && storedUser && tokenExpiry) {
       const now = Date.now()
@@ -25,10 +25,10 @@ function App() {
         setUser(JSON.parse(storedUser))
       } else {
         // Token expired, clear storage and user state
-        sessionStorage.removeItem('user')
-        sessionStorage.removeItem('accessToken')
-        sessionStorage.removeItem('tokenExpiry')
-        sessionStorage.removeItem('lastSpreadsheetId')
+        localStorage.removeItem('user')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('tokenExpiry')
+        localStorage.removeItem('lastSpreadsheetId')
         setUser(null)
         setAccessToken(null)
         setDuas([])
@@ -51,9 +51,9 @@ function App() {
   }
 
   const handleSignOut = () => {
-    // Clear only app-specific sessionStorage keys
+    // Clear only app-specific localStorage keys
     const appKeys = ['user', 'accessToken', 'tokenExpiry', 'lastSpreadsheetId', 'lastNameColumnIndex', 'lastDuasColumnIndex']
-    appKeys.forEach(key => sessionStorage.removeItem(key))
+    appKeys.forEach(key => localStorage.removeItem(key))
     setUser(null)
     setAccessToken(null)
     setDuas([])
@@ -79,9 +79,9 @@ function App() {
 
   const handleChangeSpreadsheet = () => {
     // Clear the last spreadsheet ID and column indices so it doesn't auto-load on refresh
-    sessionStorage.removeItem('lastSpreadsheetId')
-    sessionStorage.removeItem('lastNameColumnIndex')
-    sessionStorage.removeItem('lastDuasColumnIndex')
+    localStorage.removeItem('lastSpreadsheetId')
+    localStorage.removeItem('lastNameColumnIndex')
+    localStorage.removeItem('lastDuasColumnIndex')
     setShowSpreadsheetInput(true)
     setDuas([])
   }
