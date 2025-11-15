@@ -18,14 +18,14 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     }
 
     const loadLastSpreadsheet = async () => {
-      const lastId = sessionStorage.getItem('lastSpreadsheetId')
+      const lastId = localStorage.getItem('lastSpreadsheetId')
       if (!lastId || !accessToken) {
         return
       }
 
       // Check if we have saved column indices
-      const savedNameColumnIndex = sessionStorage.getItem('lastNameColumnIndex')
-      const savedDuasColumnIndex = sessionStorage.getItem('lastDuasColumnIndex')
+      const savedNameColumnIndex = localStorage.getItem('lastNameColumnIndex')
+      const savedDuasColumnIndex = localStorage.getItem('lastDuasColumnIndex')
       const nameColumnIndex = savedNameColumnIndex !== null ? parseInt(savedNameColumnIndex) : null
       const duasColumnIndex = savedDuasColumnIndex !== null ? parseInt(savedDuasColumnIndex) : null
 
@@ -68,16 +68,16 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         }
         
         // Clear the last ID and column indices if it fails to load
-        sessionStorage.removeItem('lastSpreadsheetId')
-        sessionStorage.removeItem('lastNameColumnIndex')
-        sessionStorage.removeItem('lastDuasColumnIndex')
+        localStorage.removeItem('lastSpreadsheetId')
+        localStorage.removeItem('lastNameColumnIndex')
+        localStorage.removeItem('lastDuasColumnIndex')
         setIsAutoLoading(false)
         
         // If authentication expired, clear user session
         if (error.message && error.message.includes('Authentication expired')) {
-          sessionStorage.removeItem('user')
-          sessionStorage.removeItem('accessToken')
-          sessionStorage.removeItem('tokenExpiry')
+          localStorage.removeItem('user')
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('tokenExpiry')
           window.location.reload()
         }
       } finally {
@@ -92,22 +92,22 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     try {
       const duas = await fetchSheetData(spreadsheetId, accessToken)
       
-      // Save spreadsheet ID to sessionStorage for convenience (cleared on tab close)
-      sessionStorage.setItem('lastSpreadsheetId', spreadsheetId)
+      // Save spreadsheet ID to localStorage for convenience
+      localStorage.setItem('lastSpreadsheetId', spreadsheetId)
       // Clear column indices since auto-detection worked
-      sessionStorage.removeItem('lastNameColumnIndex')
-      sessionStorage.removeItem('lastDuasColumnIndex')
+      localStorage.removeItem('lastNameColumnIndex')
+      localStorage.removeItem('lastDuasColumnIndex')
       
       onDataLoaded?.(duas)
     } catch (err) {
       // If authentication expired, clear user session and reload
       if (err.message && err.message.includes('Authentication expired')) {
-        sessionStorage.removeItem('user')
-        sessionStorage.removeItem('accessToken')
-        sessionStorage.removeItem('tokenExpiry')
-        sessionStorage.removeItem('lastSpreadsheetId')
-        sessionStorage.removeItem('lastNameColumnIndex')
-        sessionStorage.removeItem('lastDuasColumnIndex')
+        localStorage.removeItem('user')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('tokenExpiry')
+        localStorage.removeItem('lastSpreadsheetId')
+        localStorage.removeItem('lastNameColumnIndex')
+        localStorage.removeItem('lastDuasColumnIndex')
         window.location.reload()
         return
       }
@@ -139,10 +139,10 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         duasColumnIndex
       )
       
-      // Save spreadsheet ID and column indices to sessionStorage
-      sessionStorage.setItem('lastSpreadsheetId', columnSelectorSpreadsheetId)
-      sessionStorage.setItem('lastNameColumnIndex', nameColumnIndex.toString())
-      sessionStorage.setItem('lastDuasColumnIndex', duasColumnIndex.toString())
+      // Save spreadsheet ID and column indices to localStorage
+      localStorage.setItem('lastSpreadsheetId', columnSelectorSpreadsheetId)
+      localStorage.setItem('lastNameColumnIndex', nameColumnIndex.toString())
+      localStorage.setItem('lastDuasColumnIndex', duasColumnIndex.toString())
       
       setShowColumnSelector(false)
       setColumnSelectorSpreadsheetId(null)
@@ -152,12 +152,12 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     } catch (err) {
       // If authentication expired, clear user session and reload
       if (err.message && err.message.includes('Authentication expired')) {
-        sessionStorage.removeItem('user')
-        sessionStorage.removeItem('accessToken')
-        sessionStorage.removeItem('tokenExpiry')
-        sessionStorage.removeItem('lastSpreadsheetId')
-        sessionStorage.removeItem('lastNameColumnIndex')
-        sessionStorage.removeItem('lastDuasColumnIndex')
+        localStorage.removeItem('user')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('tokenExpiry')
+        localStorage.removeItem('lastSpreadsheetId')
+        localStorage.removeItem('lastNameColumnIndex')
+        localStorage.removeItem('lastDuasColumnIndex')
         window.location.reload()
         return
       }
