@@ -1,31 +1,36 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchSheetData, fetchSheetHeaders } from '../utils/sheetsApi'
 import SpreadsheetPicker from './SpreadsheetPicker'
 import ColumnSelector from './ColumnSelector'
 
-export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAutoLoad = false }) {
+export default function SpreadsheetInput({ accessToken, user, onDataLoaded, disableAutoLoad = false }) {
   const [isAutoLoading, setIsAutoLoading] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
   const [showColumnSelector, setShowColumnSelector] = useState(false)
   const [columnSelectorSpreadsheetId, setColumnSelectorSpreadsheetId] = useState(null)
   const [columnSelectorHeaders, setColumnSelectorHeaders] = useState([])
 
+  // Helper function to get user-specific localStorage keys
+  const getUserStorageKey = useCallback((key) => {
+    return user?.email ? `${key}_${user.email}` : key
+  }, [user?.email])
+
   // Automatically load last spreadsheet on mount if it exists
   useEffect(() => {
     // Don't auto-load if explicitly disabled (e.g., when user wants to change sheet)
-    if (disableAutoLoad) {
+    if (disableAutoLoad || !user?.email) {
       return
     }
 
     const loadLastSpreadsheet = async () => {
-      const lastId = localStorage.getItem('lastSpreadsheetId')
+      const lastId = localStorage.getItem(getUserStorageKey('lastSpreadsheetId'))
       if (!lastId || !accessToken) {
         return
       }
 
       // Check if we have saved column indices
-      const savedNameColumnIndex = localStorage.getItem('lastNameColumnIndex')
-      const savedDuasColumnIndex = localStorage.getItem('lastDuasColumnIndex')
+      const savedNameColumnIndex = localStorage.getItem(getUserStorageKey('lastNameColumnIndex'))
+      const savedDuasColumnIndex = localStorage.getItem(getUserStorageKey('lastDuasColumnIndex'))
       const nameColumnIndex = savedNameColumnIndex !== null ? parseInt(savedNameColumnIndex) : null
       const duasColumnIndex = savedDuasColumnIndex !== null ? parseInt(savedDuasColumnIndex) : null
 
@@ -62,15 +67,12 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
             setShowColumnSelector(true)
             setIsAutoLoading(false)
             return
-          } catch (headerErr) {
-            // If fetching headers fails, fall through to clear storage
+          } catch {
+            // If fetching headers fails, just stop loading - don't clear storage
           }
         }
         
-        // Clear the last ID and column indices if it fails to load
-        localStorage.removeItem('lastSpreadsheetId')
-        localStorage.removeItem('lastNameColumnIndex')
-        localStorage.removeItem('lastDuasColumnIndex')
+        // Don't clear the last ID and column indices on failure - keep them for next time
         setIsAutoLoading(false)
         
         // If authentication expired, clear user session
@@ -86,17 +88,19 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
     }
 
     loadLastSpreadsheet()
-  }, [accessToken, onDataLoaded, disableAutoLoad])
+  }, [accessToken, user, onDataLoaded, disableAutoLoad, getUserStorageKey])
 
   const handleSpreadsheetSelected = async (spreadsheetId) => {
     try {
       const duas = await fetchSheetData(spreadsheetId, accessToken)
       
-      // Save spreadsheet ID to localStorage for convenience
-      localStorage.setItem('lastSpreadsheetId', spreadsheetId)
-      // Clear column indices since auto-detection worked
-      localStorage.removeItem('lastNameColumnIndex')
-      localStorage.removeItem('lastDuasColumnIndex')
+      // Save spreadsheet ID to localStorage with user-specific key
+      if (user?.email) {
+        localStorage.setItem(getUserStorageKey('lastSpreadsheetId'), spreadsheetId)
+        // Clear column indices since auto-detection worked
+        localStorage.removeItem(getUserStorageKey('lastNameColumnIndex'))
+        localStorage.removeItem(getUserStorageKey('lastDuasColumnIndex'))
+      }
       
       onDataLoaded?.(duas)
     } catch (err) {
@@ -105,9 +109,6 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         localStorage.removeItem('user')
         localStorage.removeItem('accessToken')
         localStorage.removeItem('tokenExpiry')
-        localStorage.removeItem('lastSpreadsheetId')
-        localStorage.removeItem('lastNameColumnIndex')
-        localStorage.removeItem('lastDuasColumnIndex')
         window.location.reload()
         return
       }
@@ -120,7 +121,7 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
           setColumnSelectorHeaders(headers)
           setShowColumnSelector(true)
           return
-        } catch (headerErr) {
+        } catch {
           // If fetching headers fails, fall through to show error
         }
       }
@@ -139,10 +140,12 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         duasColumnIndex
       )
       
-      // Save spreadsheet ID and column indices to localStorage
-      localStorage.setItem('lastSpreadsheetId', columnSelectorSpreadsheetId)
-      localStorage.setItem('lastNameColumnIndex', nameColumnIndex.toString())
-      localStorage.setItem('lastDuasColumnIndex', duasColumnIndex.toString())
+      // Save spreadsheet ID and column indices to localStorage with user-specific keys
+      if (user?.email) {
+        localStorage.setItem(getUserStorageKey('lastSpreadsheetId'), columnSelectorSpreadsheetId)
+        localStorage.setItem(getUserStorageKey('lastNameColumnIndex'), nameColumnIndex.toString())
+        localStorage.setItem(getUserStorageKey('lastDuasColumnIndex'), duasColumnIndex.toString())
+      }
       
       setShowColumnSelector(false)
       setColumnSelectorSpreadsheetId(null)
@@ -155,9 +158,6 @@ export default function SpreadsheetInput({ accessToken, onDataLoaded, disableAut
         localStorage.removeItem('user')
         localStorage.removeItem('accessToken')
         localStorage.removeItem('tokenExpiry')
-        localStorage.removeItem('lastSpreadsheetId')
-        localStorage.removeItem('lastNameColumnIndex')
-        localStorage.removeItem('lastDuasColumnIndex')
         window.location.reload()
         return
       }

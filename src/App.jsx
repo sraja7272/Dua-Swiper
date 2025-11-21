@@ -12,6 +12,28 @@ function App() {
   const [showSpreadsheetInput, setShowSpreadsheetInput] = useState(false)
   const [isDuasPanelOpen, setIsDuasPanelOpen] = useState(false)
 
+  // Helper function to get user-specific localStorage keys
+  const getUserStorageKey = (key, userEmail) => {
+    return userEmail ? `${key}_${userEmail}` : key
+  }
+
+  // Helper function to clear old user's spreadsheet data
+  const clearOldUserSpreadsheetData = (currentUserEmail) => {
+    // Get all localStorage keys
+    const keys = Object.keys(localStorage)
+    // Find keys that match the pattern but belong to different users
+    keys.forEach(key => {
+      if (key.startsWith('lastSpreadsheetId_') || 
+          key.startsWith('lastNameColumnIndex_') || 
+          key.startsWith('lastDuasColumnIndex_')) {
+        const keyUserEmail = key.split('_').slice(1).join('_') // Get email part after first underscore
+        if (keyUserEmail && keyUserEmail !== currentUserEmail) {
+          localStorage.removeItem(key)
+        }
+      }
+    })
+  }
+
   // Check for existing session on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('accessToken')
@@ -21,14 +43,16 @@ function App() {
     if (storedToken && storedUser && tokenExpiry) {
       const now = Date.now()
       if (now < parseInt(tokenExpiry)) {
+        const userData = JSON.parse(storedUser)
         setAccessToken(storedToken)
-        setUser(JSON.parse(storedUser))
+        setUser(userData)
+        // Clear any old user's spreadsheet data
+        clearOldUserSpreadsheetData(userData.email)
       } else {
-        // Token expired, clear storage and user state
+        // Token expired, clear storage and user state (but keep spreadsheet data for when they log back in)
         localStorage.removeItem('user')
         localStorage.removeItem('accessToken')
         localStorage.removeItem('tokenExpiry')
-        localStorage.removeItem('lastSpreadsheetId')
         setUser(null)
         setAccessToken(null)
         setDuas([])
@@ -37,6 +61,10 @@ function App() {
   }, [])
 
   const handleAuthSuccess = (token, userData) => {
+    // Clear old user's spreadsheet data if switching users
+    if (user && user.email !== userData.email) {
+      clearOldUserSpreadsheetData(userData.email)
+    }
     setAccessToken(token)
     setUser(userData)
   }
@@ -51,9 +79,15 @@ function App() {
   }
 
   const handleSignOut = () => {
-    // Clear only app-specific localStorage keys
-    const appKeys = ['user', 'accessToken', 'tokenExpiry', 'lastSpreadsheetId', 'lastNameColumnIndex', 'lastDuasColumnIndex']
+    // Clear everything when user explicitly signs out
+    const appKeys = ['user', 'accessToken', 'tokenExpiry']
     appKeys.forEach(key => localStorage.removeItem(key))
+    // Clear current user's spreadsheet data
+    if (user?.email) {
+      localStorage.removeItem(getUserStorageKey('lastSpreadsheetId', user.email))
+      localStorage.removeItem(getUserStorageKey('lastNameColumnIndex', user.email))
+      localStorage.removeItem(getUserStorageKey('lastDuasColumnIndex', user.email))
+    }
     setUser(null)
     setAccessToken(null)
     setDuas([])
@@ -78,10 +112,12 @@ function App() {
   }
 
   const handleChangeSpreadsheet = () => {
-    // Clear the last spreadsheet ID and column indices so it doesn't auto-load on refresh
-    localStorage.removeItem('lastSpreadsheetId')
-    localStorage.removeItem('lastNameColumnIndex')
-    localStorage.removeItem('lastDuasColumnIndex')
+    // Clear the last spreadsheet ID and column indices for current user
+    if (user?.email) {
+      localStorage.removeItem(getUserStorageKey('lastSpreadsheetId', user.email))
+      localStorage.removeItem(getUserStorageKey('lastNameColumnIndex', user.email))
+      localStorage.removeItem(getUserStorageKey('lastDuasColumnIndex', user.email))
+    }
     setShowSpreadsheetInput(true)
     setDuas([])
   }
@@ -229,6 +265,7 @@ function App() {
               <div>
                 <SpreadsheetInput
                   accessToken={accessToken}
+                  user={user}
                   onDataLoaded={handleDataLoaded}
                   disableAutoLoad={showSpreadsheetInput}
                 />

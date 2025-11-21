@@ -6,6 +6,23 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Helper function to clear old user's spreadsheet data
+  const clearOldUserSpreadsheetData = (currentUserEmail) => {
+    // Get all localStorage keys
+    const keys = Object.keys(localStorage)
+    // Find keys that match the pattern but belong to different users
+    keys.forEach(key => {
+      if (key.startsWith('lastSpreadsheetId_') || 
+          key.startsWith('lastNameColumnIndex_') || 
+          key.startsWith('lastDuasColumnIndex_')) {
+        const keyUserEmail = key.split('_').slice(1).join('_') // Get email part after first underscore
+        if (keyUserEmail && keyUserEmail !== currentUserEmail) {
+          localStorage.removeItem(key)
+        }
+      }
+    })
+  }
+
   // Check for existing auth on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -19,12 +36,13 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
         setUser(userData)
         onAuthSuccess?.(storedToken, userData)
         getUser?.(userData)
+        // Clear any old user's spreadsheet data
+        clearOldUserSpreadsheetData(userData.email)
       } else {
-        // Token expired, clear storage
+        // Token expired, clear storage (but keep spreadsheet data for when they log back in)
         localStorage.removeItem('user')
         localStorage.removeItem('accessToken')
         localStorage.removeItem('tokenExpiry')
-        localStorage.removeItem('lastSpreadsheetId')
         setUser(null)
       }
     }
@@ -48,6 +66,15 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
           name: userInfoResponse.data.name,
           email: userInfoResponse.data.email,
           picture: userInfoResponse.data.picture,
+        }
+
+        // Clear old user's spreadsheet data if switching users
+        const storedUser = localStorage.getItem('user')
+        if (storedUser) {
+          const oldUserData = JSON.parse(storedUser)
+          if (oldUserData.email !== userData.email) {
+            clearOldUserSpreadsheetData(userData.email)
+          }
         }
 
         // Calculate token expiry (Google tokens typically expire in 1 hour)
@@ -75,13 +102,6 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
     scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
   })
 
-  const logout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('tokenExpiry')
-    setUser(null)
-    window.location.reload()
-  }
 
   // Return user data for parent component to handle display
   if (user) {
