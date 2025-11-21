@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import QuoteCard from './QuoteCard'
 
-export default function CardDeck({ duas: initialDuas }) {
+export default function CardDeck({ duas: initialDuas, accessToken, user, onReloadDuas, onBackToLogin }) {
   // State to manage the duas array - remove cards as they're navigated
   const [duas, setDuas] = useState(initialDuas)
   const [swipedCards, setSwipedCards] = useState([]) // Track removed cards for restoration
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isReloading, setIsReloading] = useState(false)
+  const [errorDialog, setErrorDialog] = useState(null) // { type: 'offline' | 'auth_expired', message: string }
 
   // Shuffle array function (Fisher-Yates algorithm)
   const shuffleArray = (array) => {
@@ -68,12 +70,78 @@ export default function CardDeck({ duas: initialDuas }) {
     setCurrentIndex(lastRemoved.index)
   }
 
-  const reset = () => {
+  const reset = async () => {
+    // If we have the reload function, try to reload from spreadsheet
+    if (onReloadDuas && accessToken && user) {
+      setIsReloading(true)
+      setErrorDialog(null)
+      
+      try {
+        const result = await onReloadDuas()
+        
+        if (result.success) {
+          // Successfully reloaded - duas are already set in App.jsx via handleReloadDuas
+          // Reset the card deck state
+          setSwipedCards([])
+          setCurrentIndex(0)
+        } else {
+          // Handle errors
+          if (result.error === 'offline') {
+            setErrorDialog({
+              type: 'offline',
+              message: "You don't have internet connection. We can show you the same duas again, or you can go back to the login page."
+            })
+          } else if (result.error === 'auth_expired') {
+            setErrorDialog({
+              type: 'auth_expired',
+              message: 'Your credentials have expired. We can show you the same duas again, or you can go back to the login page to sign in again.'
+            })
+          } else {
+            // Other errors - treat as offline/network issue
+            const isOffline = !navigator.onLine
+            setErrorDialog({
+              type: isOffline ? 'offline' : 'auth_expired',
+              message: isOffline 
+                ? "You don't have internet connection. We can show you the same duas again, or you can go back to the login page."
+                : 'Unable to reload duas. We can show you the same duas again, or you can go back to the login page.'
+            })
+          }
+        }
+      } catch (error) {
+        // Fallback error handling
+        const isOffline = !navigator.onLine
+        setErrorDialog({
+          type: isOffline ? 'offline' : 'auth_expired',
+          message: isOffline 
+            ? "You don't have internet connection. We can show you the same duas again, or you can go back to the login page."
+            : 'Unable to reload duas. We can show you the same duas again, or you can go back to the login page.'
+        })
+      } finally {
+        setIsReloading(false)
+      }
+    } else {
+      // Fallback: just reset to original duas (randomized)
+      const randomizedDuas = shuffleArray(initialDuas)
+      setDuas(randomizedDuas)
+      setSwipedCards([])
+      setCurrentIndex(0)
+    }
+  }
+
+  const handleCycleSameDuas = () => {
     // Reset to original duas (randomized)
     const randomizedDuas = shuffleArray(initialDuas)
     setDuas(randomizedDuas)
     setSwipedCards([])
     setCurrentIndex(0)
+    setErrorDialog(null)
+  }
+
+  const handleGoToLogin = () => {
+    if (onBackToLogin) {
+      onBackToLogin()
+    }
+    setErrorDialog(null)
   }
 
   // Show "No Duas Loaded" only if initial duas is empty (not if all duas are swiped)
@@ -174,7 +242,7 @@ export default function CardDeck({ duas: initialDuas }) {
       )}
 
       {/* End of deck message */}
-      {showCompletionPopup && (
+      {showCompletionPopup && !errorDialog && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center p-8 bg-white rounded-2xl shadow-2xl max-w-lg w-[90%] sm:w-auto border border-gray-200">
           <div className="mb-6">
             <svg
@@ -200,22 +268,94 @@ export default function CardDeck({ duas: initialDuas }) {
           <div className="flex justify-center">
             <button
               onClick={reset}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2"
+              disabled={isReloading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              {isReloading ? (
+                <>
+                  <svg
+                    className="w-5 h-5 animate-spin"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Reloading...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Reset
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error dialog */}
+      {errorDialog && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center p-8 bg-white rounded-2xl shadow-2xl max-w-lg w-[90%] sm:w-auto border border-gray-200">
+          <div className="mb-6">
+            <svg
+              className={`w-16 h-16 mx-auto mb-4 ${errorDialog.type === 'offline' ? 'text-yellow-500' : 'text-red-500'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {errorDialog.type === 'offline' ? (
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
-              </svg>
-              Reset
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              )}
+            </svg>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              {errorDialog.type === 'offline' ? 'No Internet Connection' : 'Credentials Expired'}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {errorDialog.message}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              onClick={handleCycleSameDuas}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Show Same Duas Again
+            </button>
+            <button
+              onClick={handleGoToLogin}
+              className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            >
+              Back to Login
             </button>
           </div>
         </div>

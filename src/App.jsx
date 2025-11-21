@@ -126,6 +126,59 @@ function App() {
     setShowSpreadsheetInput(false)
   }
 
+  // Function to reload duas from the spreadsheet
+  const handleReloadDuas = async () => {
+    if (!user?.email || !accessToken) {
+      return { success: false, error: 'No user or access token' }
+    }
+
+    const getUserStorageKey = (key) => {
+      return user?.email ? `${key}_${user.email}` : key
+    }
+
+    const lastId = localStorage.getItem(getUserStorageKey('lastSpreadsheetId'))
+    if (!lastId) {
+      return { success: false, error: 'No spreadsheet ID found' }
+    }
+
+    // Check if we have saved column indices
+    const savedNameColumnIndex = localStorage.getItem(getUserStorageKey('lastNameColumnIndex'))
+    const savedDuasColumnIndex = localStorage.getItem(getUserStorageKey('lastDuasColumnIndex'))
+    const nameColumnIndex = savedNameColumnIndex !== null ? parseInt(savedNameColumnIndex) : null
+    const duasColumnIndex = savedDuasColumnIndex !== null ? parseInt(savedDuasColumnIndex) : null
+
+    try {
+      const { fetchSheetData } = await import('./utils/sheetsApi')
+      const loadedDuas = await fetchSheetData(lastId, accessToken, nameColumnIndex, duasColumnIndex)
+      const randomizedDuas = shuffleArray(loadedDuas)
+      setDuas(randomizedDuas)
+      return { success: true, duas: randomizedDuas }
+    } catch (error) {
+      // Check if it's a network error (offline)
+      const isOffline = !navigator.onLine || (error.message && (
+        error.message.includes('Network Error') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('network')
+      ))
+
+      // Check if it's an authentication error
+      const isAuthError = error.message && error.message.includes('Authentication expired')
+
+      return {
+        success: false,
+        error: isOffline ? 'offline' : isAuthError ? 'auth_expired' : error.message || 'Unknown error'
+      }
+    }
+  }
+
+  // Function to handle going back to login
+  const handleBackToLogin = () => {
+    setUser(null)
+    setAccessToken(null)
+    setDuas([])
+    setShowSpreadsheetInput(false)
+  }
+
   // Check if we need environment setup
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
   const needsSetup = !clientId
@@ -293,7 +346,13 @@ function App() {
                 </div>
                 
                 {/* Full screen card deck */}
-                <CardDeck duas={duas} />
+                <CardDeck 
+                  duas={duas} 
+                  accessToken={accessToken}
+                  user={user}
+                  onReloadDuas={handleReloadDuas}
+                  onBackToLogin={handleBackToLogin}
+                />
               </div>
             )}
           </>
