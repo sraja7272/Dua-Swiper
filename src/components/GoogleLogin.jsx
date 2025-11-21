@@ -99,7 +99,7 @@ export default function GoogleLogin({ onAuthSuccess, onAuthFailure, getUser }) {
       console.error('Login failed:', error)
       onAuthFailure?.(error)
     },
-    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    scope: 'https://www.googleapis.com/auth/drive.readonly',
   })
 
 

@@ -1,7 +1,62 @@
 import axios from 'axios'
 
 /**
- * Fetch headers from a Google Spreadsheet
+ * Parse CSV text into rows
+ * @param {string} csvText - CSV text content
+ * @returns {Array<Array<string>>} - Array of rows, each row is an array of cells
+ */
+function parseCSV(csvText) {
+  const rows = []
+  let currentRow = []
+  let currentCell = ''
+  let inQuotes = false
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i]
+    const nextChar = csvText[i + 1]
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        currentCell += '"'
+        i++ // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of cell
+      currentRow.push(currentCell.trim())
+      currentCell = ''
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      // End of row
+      if (char === '\r' && nextChar === '\n') {
+        i++ // Skip \n after \r
+      }
+      currentRow.push(currentCell.trim())
+      currentCell = ''
+      if (currentRow.length > 0 && currentRow.some(cell => cell !== '')) {
+        rows.push(currentRow)
+      }
+      currentRow = []
+    } else {
+      currentCell += char
+    }
+  }
+
+  // Add last cell and row
+  if (currentCell !== '' || currentRow.length > 0) {
+    currentRow.push(currentCell.trim())
+    if (currentRow.some(cell => cell !== '')) {
+      rows.push(currentRow)
+    }
+  }
+
+  return rows
+}
+
+/**
+ * Fetch headers from a Google Spreadsheet using Drive API export
  * @param {string} spreadsheetId - The ID of the spreadsheet
  * @param {string} accessToken - Google OAuth access token
  * @returns {Promise<Array>} - Array of header strings
@@ -12,30 +67,28 @@ export async function fetchSheetHeaders(spreadsheetId, accessToken) {
   }
 
   try {
-    // Fetch the spreadsheet metadata to get sheet names
-    const metadataResponse = await axios.get(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-
-    // Get the first sheet name
-    const firstSheetName = metadataResponse.data.sheets[0].properties.title
-
-    // Fetch data from the first sheet (just first row for headers)
+    // Export spreadsheet as CSV using Drive API (works with drive.file scope)
     const response = await axios.get(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(firstSheetName)}!1:1`,
+      `https://www.googleapis.com/drive/v3/files/${spreadsheetId}/export`,
       {
+        params: {
+          mimeType: 'text/csv',
+        },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        responseType: 'text',
       }
     )
 
-    const headers = response.data.values?.[0] || []
+    const csvText = response.data
+    const rows = parseCSV(csvText)
+    
+    if (rows.length === 0) {
+      throw new Error('Spreadsheet is empty')
+    }
+
+    const headers = rows[0] || []
     return headers
   } catch (error) {
     // Enhanced error messages
@@ -62,7 +115,7 @@ export async function fetchSheetHeaders(spreadsheetId, accessToken) {
 }
 
 /**
- * Fetch data from a Google Spreadsheet
+ * Fetch data from a Google Spreadsheet using Drive API export
  * @param {string} spreadsheetId - The ID of the spreadsheet
  * @param {string} accessToken - Google OAuth access token
  * @param {number} [nameColumnIndex] - Optional: index of the name column (0-based)
@@ -75,30 +128,22 @@ export async function fetchSheetData(spreadsheetId, accessToken, nameColumnIndex
   }
 
   try {
-    // Fetch the spreadsheet metadata to get sheet names
-    const metadataResponse = await axios.get(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    )
-
-    // Get the first sheet name
-    const firstSheetName = metadataResponse.data.sheets[0].properties.title
-
-    // Fetch data from the first sheet
+    // Export spreadsheet as CSV using Drive API (works with drive.file scope)
     const response = await axios.get(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(firstSheetName)}`,
+      `https://www.googleapis.com/drive/v3/files/${spreadsheetId}/export`,
       {
+        params: {
+          mimeType: 'text/csv',
+        },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        responseType: 'text',
       }
     )
 
-    const rows = response.data.values
+    const csvText = response.data
+    const rows = parseCSV(csvText)
 
     if (!rows || rows.length === 0) {
       throw new Error('Spreadsheet is empty')
@@ -196,12 +241,17 @@ export async function fetchSheetData(spreadsheetId, accessToken, nameColumnIndex
  */
 export async function testSpreadsheetAccess(spreadsheetId, accessToken) {
   try {
+    // Test access using Drive API export (works with drive.file scope)
     await axios.get(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`,
+      `https://www.googleapis.com/drive/v3/files/${spreadsheetId}/export`,
       {
+        params: {
+          mimeType: 'text/csv',
+        },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        responseType: 'text',
       }
     )
     return true
